@@ -7,10 +7,10 @@ clampLegGap = 8;
 clampToClampScrewCenter = (clampLegLengthFromShaft - clampThickness) / 2 - 0.5 ; //using '(clampLegLengthFromShaft - clampThickness) / 2' nearly centres this hole on the clamp leg
 clampScrewDiameter = 4.5 ; // #8 clearance hole
 shaftToMountPlate = 1;
-mountPlateThickness = 4.0 ;
-mountPlateLength = 55 ;
-mountHoleSpacing = 40 ;
-mountHoleDiameter = 3.8; 
+mountPlateThickness = 4.2;
+mountPlateLength = 55;
+mountHoleSpacing = 40;
+mountHoleDiameter = 4; 
 screwHoleSmoothness = 50 ; // Aha! cylinder with $fn can generate hexagon for bolt! 6 = printable vertically. Applies to mount plate screw holes and clamp leg screw holes
 clampSmoothness = 100 ;
 
