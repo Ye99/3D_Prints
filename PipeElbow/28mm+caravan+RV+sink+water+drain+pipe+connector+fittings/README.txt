@@ -1,0 +1,1 @@
+28mm caravan RV sink water drain pipe connector fittings by 1944GPW on Thingiverse: https://www.thingiverse.com/thing:4204467
