@@ -37,6 +37,19 @@ use <BOSL/transforms.scad>
 // - Epaisseur - Wall thickness  
   Thick         = 3;//[2:5]  
   
+/* [STL element to export] */
+//Coque haut - Top shell
+  TShell        = 0;// [0:No, 1:Yes]
+//Coque bas- Bottom shell
+  BShell        = 1;// [0:No, 1:Yes]
+//Panneau arrière - Back panel  
+  BPanel        = 0;// [0:No, 1:Yes]
+//Panneau avant - Front panel
+  FPanel        = 0;// [0:No, 1:Yes]
+//Texte façade - Front text
+  Text          = 0;// [0:No, 1:Yes]
+  
+  
 /* [Box options] */
 // Pieds PCB - PCB feet (x4) 
   PCBFeet       = 1;// [0:No, 1:Yes]
@@ -80,18 +93,14 @@ FootHole        = 2;
 DC_socket_hole_diameter=8;
 DC_socket_protrusion_length=16;
 
-/* [STL element to export] */
-//Coque haut - Top shell
-  TShell        = 0;// [0:No, 1:Yes]
-//Coque bas- Bottom shell
-  BShell        = 1;// [0:No, 1:Yes]
-//Panneau arrière - Back panel  
-  BPanel        = 0;// [0:No, 1:Yes]
-//Panneau avant - Front panel
-  FPanel        = 1;// [0:No, 1:Yes]
-//Texte façade - Front text
-  Text          = 0;// [0:No, 1:Yes]
-  
+number4_screw_hole_tap_diameter=2.78;
+number4_screw_thread_diamater=2.84;
+// No-drag through-hole diameter
+number4_screw_hole_diameter=number4_screw_thread_diamater+0.7;
+
+top_bottom_connecting_screw_tap_diameter=number4_screw_hole_tap_diameter; // tap hole size
+top_bottom_connecting_screw_hole_diameter=number4_screw_hole_diameter; // no drag hole size
+
 /* [Hidden] */
 // - Couleur coque - Shell color  
 Couleur1        = "Orange";       
@@ -128,7 +137,7 @@ module RoundBox($a=Length, $b=Width, $c=Height) {// Cube bords arrondis
 ////////////////////////////////// - Module Coque/Shell - //////////////////////////////////         
 module Coque(){//Coque - Shell  
     Thick = Thick*2;  
-    difference(){    
+    difference(){
         difference() {//sides decoration
             union() {    
                 difference() {//soustraction de la forme centrale - Substraction Fileted box
@@ -206,32 +215,27 @@ module Coque(){//Coque - Shell
         }
     }//fin difference decoration
 
+        // top and bottom connecting screw holes
+        union(){ 
+            $fn=50;
+            translate([3*Thick+5, 20, Height/2+4])
+                rotate([90,0,0])
+                    cylinder(d=top_bottom_connecting_screw_tap_diameter, 20);
+                
+            translate([Length-((3*Thick)+5), 20, Height/2+4])
+                rotate([90,0,0])
+                    cylinder(d=top_bottom_connecting_screw_tap_diameter, 20);
+                
+            translate([3*Thick+5, Width+5, Height/2-4])
+                rotate([90,0,0])
+                    cylinder(d=top_bottom_connecting_screw_hole_diameter, Thick*2);
+                
+            translate([Length-((3*Thick)+5), Width+5, Height/2-4])
+                rotate([90,0,0])
+                    cylinder(d=top_bottom_connecting_screw_hole_diameter, Thick*2);
+        }//fin de sides holes
 
-            union(){ //sides holes
-                $fn=50;
-                translate([3*Thick+5,20,Height/2+4]){
-                    rotate([90,0,0]){
-                    cylinder(d=2,20);
-                    }
-                }
-                translate([Length-((3*Thick)+5),20,Height/2+4]){
-                    rotate([90,0,0]){
-                    cylinder(d=2,20);
-                    }
-                }
-                translate([3*Thick+5,Width+5,Height/2-4]){
-                    rotate([90,0,0]){
-                    cylinder(d=2,20);
-                    }
-                }
-                translate([Length-((3*Thick)+5),Width+5,Height/2-4]){
-                    rotate([90,0,0]){
-                    cylinder(d=2,20);
-                    }
-                }
-            }//fin de sides holes
-
-        }//fin de difference holes
+    }//fin de difference holes
 }// fin coque 
 
 ////////////////////////////// - Experiment - ///////////////////////////////////////////
@@ -253,7 +257,7 @@ module Panels(){
 
 /////////////////////// - Foot with base filet - /////////////////////////////
 module foot(FootDia, FootHole, FootHeight){
-    Filet=2;
+    Filet=4; // when you change this, it will impact raise of foot. Bad design that they are coupled. Refactor later!
     color("Blue")   
         translate([0, 0, Filet-1.5])
             difference() {
@@ -270,10 +274,14 @@ module foot(FootDia, FootHole, FootHeight){
             }          
 }
   
-module Feet(){     
-//////////////////// - PCB only visible in the preview mode - /////////////////////    
-    translate([3*Thick+2, Thick+5, FootHeight+(Thick/2)-0.5]) {
-        //cube([pcb_hole_x_distance+10, pcb_hole_y_distance+10, PCBHeight]);
+module Feet(){
+    board_edge_x=3*Thick+2;
+    board_edge_y=Thick+5;
+    
+    //////////////////// - PCB only visible in the preview mode - /////////////////////    
+    translate([board_edge_x, board_edge_y, FootHeight-(Thick)+3]) { // TODO: fix these magic numbers!
+        // This code assumes screw hole is 5mm away from PCB board edge. Need to fix this later!
+        %cube([pcb_hole_x_distance+10, pcb_hole_y_distance+10, PCBHeight]);
         
         translate([pcb_hole_x_distance/2,pcb_hole_y_distance/2,0.5]) { 
             color("Olive")
@@ -282,22 +290,20 @@ module Feet(){
     }
     
     ////////////////////////////// - 4 Feet - //////////////////////////////////////////     
-    translate([3*Thick+7, Thick+10, Thick/2]) {
+    first_screw_hole_x=board_edge_x+5;
+    first_screw_hole_y=board_edge_y+5;
+    translate([first_screw_hole_x, first_screw_hole_y, 0.5])
         foot(FootDia, FootHole, FootHeight);
-    }
-    translate([(3*Thick)+pcb_hole_x_distance+7,Thick+10,Thick/2]) {
+    
+    translate([first_screw_hole_x+pcb_hole_x_distance, first_screw_hole_y, 0.5])
         foot(FootDia, FootHole, FootHeight);
-    }
     
-    translate([(3*Thick)+pcb_hole_x_distance+7,(Thick)+pcb_hole_y_distance+10,Thick/2]) {
+    translate([first_screw_hole_x+pcb_hole_x_distance, first_screw_hole_y+pcb_hole_y_distance, 0.5])
         foot(FootDia,FootHole,FootHeight);
-    }        
     
-    translate([3*Thick+7,(Thick)+pcb_hole_y_distance+10,Thick/2]) {
+    translate([first_screw_hole_x, first_screw_hole_y+pcb_hole_y_distance, 0.5])
         foot(FootDia,FootHole,FootHeight);
-    }   
-
-} // Fin du module Feet
+}
  
 
 ///////////////////////////////////// - Main - ///////////////////////////////////////
