@@ -39,9 +39,9 @@ use <BOSL/transforms.scad>
   
 /* [STL element to export] */
 //Coque haut - Top shell
-  TShell        = 0;// [0:No, 1:Yes]
+  TShell        = 1;// [0:No, 1:Yes]
 //Coque bas- Bottom shell
-  BShell        = 1;// [0:No, 1:Yes]
+  BShell        = 0;// [0:No, 1:Yes]
 //Panneau arrière - Back panel  
   BPanel        = 0;// [0:No, 1:Yes]
 //Panneau avant - Front panel
@@ -359,7 +359,7 @@ if(TShell==1)
         }
     }
 
-if (PCBFeet==1)
+if (BShell==1 && PCBFeet==1)
     // Feet
     translate([PCBPosX, PCBPosY, 0]) { 
         Feet();
