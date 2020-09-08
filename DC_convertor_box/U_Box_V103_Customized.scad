@@ -27,16 +27,11 @@ use <BOSL/transforms.scad>
 
 selected_board="XL4015Red"; //["XL4015Red", "LM2596Blue", "RD_Green"];
 
-/* [PCB_Feet--the_board_will_not_be_exported) ] */
-// All dimensions are from the center foot axis
-// - Coin bas gauche - Low left screw hole X position
-PCBPosX         = 0;
-// - Coin bas gauche - Low left screw hole Y position
-PCBPosY         = 0;
-
 // 5.5x2.1 plug socket.
 DC_socket_hole_diameter=8;
 DC_socket_protrusion_length=16;
+
+output_wire_hole_diameter=5.5;
 
 // XL4015 board
 xl4015_pcb_hole_x_distance = 47; // hole to hole. edge to edge is 51.2;
@@ -57,11 +52,18 @@ pcb_hole_x_distance = selected_board=="XL4015Red" ? xl4015_pcb_hole_x_distance :
 pcb_hole_y_distance = selected_board=="XL4015Red" ? xl4015_pcb_hole_y_distance : (selected_board=="LM2596Blue" ? lm2596_pcb_hole_y_distance  : (selected_board=="RD_Green" ? rd_pcb_hole_y_distance : 0));
 PCBHeight = selected_board=="XL4015Red" ? xl4015_PCBHeight : (selected_board=="LM2596Blue" ? lm2596_PCBHeight  : (selected_board=="RD_Green" ? rd_PCBHeight : 0));
 
+// All dimensions are from the center foot axis
+// Low left screw hole X position
+// LM2596Blue board edge to screw hold distance is larger than 5mm (the program reserved value), add extra. 
+PCBPosX = selected_board=="XL4015Red" ? 0 : (selected_board=="LM2596Blue" ? 3  : (selected_board=="RD_Green" ? 0 : 0));;
+// - Coin bas gauche - Low left screw hole Y position
+PCBPosY = 0;
+
 /* [Box dimensions] */
 Length = pcb_hole_x_distance + DC_socket_protrusion_length + 32; // 95;   // This is the outmost dimention, net usable space by PCB board is much smaller.
 Width = rd_pcb_hole_y_distance + 24; // 47;   
-Height = PCBHeight + 10;
-  
+Height = PCBHeight + 11;
+
 // Wall thickness  
 Thick = 3; //[2:5]  
   
@@ -204,7 +206,7 @@ module Coque(){//Coque - Shell
 
         union() {
             // Cut ventilation holdes on sides
-            for(i=[0:Thick/1.5:Length/3]) {
+            for(i=[0:Thick/1.5:Length-60]) {
                 // Ventilation holes part code submitted by Ettie - Thanks ;) 
                     translate([10+i, -Dec_Thick+Dec_size, 0])
                         cube([Vent_width, Dec_Thick, Height/3.8]);
@@ -220,7 +222,8 @@ module Coque(){//Coque - Shell
             }
             
             // Cut ventilation holds on center
-            for(i=[0:Thick/1.5:Length/2.5])
+            end = min(pcb_hole_x_distance-8, Length/2.5);
+            for(i=[2:Thick/1.5:end])
                 translate([21+i, Width/3, 0])
                     cube([Vent_width, 15, Height/3.8]);
         }
@@ -291,7 +294,8 @@ module Feet(){
     
     //////////////////// - PCB only visible in the preview mode - /////////////////////    
     translate([board_edge_x, board_edge_y, FootHeight-(Thick)+3]) { // TODO: fix these magic numbers!
-        // This code assumes screw hole is 5mm away from PCB board edge. Need to fix this later!
+        // This code assumes screw hole is 5mm away from PCB board edge. This is not the actual board size. 
+        // You can't trust the PCB fix simulation. Need to fix this later!
         %cube([pcb_hole_x_distance+10, pcb_hole_y_distance+10, PCBHeight]);
         
         translate([pcb_hole_x_distance/2,pcb_hole_y_distance/2,0.5]) { 
@@ -320,9 +324,17 @@ module Feet(){
 ///////////////////////////////////// - Main - ///////////////////////////////////////
 
 if (BPanel==1)
-//Back Panel
+    //Back Panel
     translate ([-m/2, 0, 0]){
-        Panels();
+        difference() {
+            Panels();
+            
+            back(Width/2)
+                up(Height/2)
+                    right(Thick*3)  
+                        yrot(-90)
+                            #cylinder(d=output_wire_hole_diameter, h=Thick*3, center=false, $fn=50);
+        }
     }
 
 if (FPanel==1)
