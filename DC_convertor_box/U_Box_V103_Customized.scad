@@ -25,30 +25,57 @@
 
 use <BOSL/transforms.scad>
 
-////////// - Paramètres de la boite - Box parameters - /////////////
+selected_board="XL4015Red"; //["XL4015Red", "LM2596Blue", "RD_Green"];
+
+/* [PCB_Feet--the_board_will_not_be_exported) ] */
+// All dimensions are from the center foot axis
+// - Coin bas gauche - Low left screw hole X position
+PCBPosX         = 0;
+// - Coin bas gauche - Low left screw hole Y position
+PCBPosY         = 0;
+
+// 5.5x2.1 plug socket.
+DC_socket_hole_diameter=8;
+DC_socket_protrusion_length=16;
+
+// XL4015 board
+xl4015_pcb_hole_x_distance = 47; // hole to hole. edge to edge is 51.2;
+xl4015_pcb_hole_y_distance = 22; // edge to edge is 26.3;
+xl4015_PCBHeight = 20; // This equals to the tallest component height + PCB board thickness. 
+
+// LM2596 board
+lm2596_pcb_hole_x_distance = 30; // hole to hole. edge to edge is 43.5;
+lm2596_pcb_hole_y_distance = 16; // edge to edge is 21;
+lm2596_PCBHeight = 16; // This equals to the tallest component height + PCB board thickness. Not including the pin length underneath PCB board.
+
+// RD green board, https://www.aliexpress.com/item/995963510.html?spm=a2g0s.9042311.0.0.27424c4dcc0soI 
+rd_pcb_hole_x_distance = 36; // hole to hole. edge to edge is 43.7;
+rd_pcb_hole_y_distance = 23; // edge to edge is 30.4;
+rd_PCBHeight = 15; // This equals to the tallest component height + PCB board thickness. Not including the pin length underneath PCB board.
+
+pcb_hole_x_distance = selected_board=="XL4015Red" ? xl4015_pcb_hole_x_distance : (selected_board=="LM2596Blue" ? lm2596_pcb_hole_x_distance  : (selected_board=="RD_Green" ? rd_pcb_hole_x_distance : 0));
+pcb_hole_y_distance = selected_board=="XL4015Red" ? xl4015_pcb_hole_y_distance : (selected_board=="LM2596Blue" ? lm2596_pcb_hole_y_distance  : (selected_board=="RD_Green" ? rd_pcb_hole_y_distance : 0));
+PCBHeight = selected_board=="XL4015Red" ? xl4015_PCBHeight : (selected_board=="LM2596Blue" ? lm2596_PCBHeight  : (selected_board=="RD_Green" ? rd_PCBHeight : 0));
 
 /* [Box dimensions] */
-// - Longueur - Length  
-  Length        = 95;   // This is the outmost dimention, net usable space by PCB board is much smaller. Board length is 51.2.
-// - Largeur - Width
-  Width         = 47;   // Ditto. Board 26.3  
-// - Hauteur - Height  
-  Height        = 30;  // board 20
-// - Epaisseur - Wall thickness  
-  Thick         = 3;//[2:5]  
+Length = pcb_hole_x_distance + DC_socket_protrusion_length + 32; // 95;   // This is the outmost dimention, net usable space by PCB board is much smaller.
+Width = rd_pcb_hole_y_distance + 24; // 47;   
+Height = PCBHeight + 10;
+  
+// Wall thickness  
+Thick = 3; //[2:5]  
   
 /* [STL element to export] */
 //Coque haut - Top shell
-  TShell        = 1;// [0:No, 1:Yes]
+  TShell        = 0;// [0:No, 1:Yes]
 //Coque bas- Bottom shell
-  BShell        = 0;// [0:No, 1:Yes]
+  BShell        = 1;// [0:No, 1:Yes]
 //Panneau arrière - Back panel  
   BPanel        = 0;// [0:No, 1:Yes]
 //Panneau avant - Front panel
   FPanel        = 0;// [0:No, 1:Yes]
 //Texte façade - Front text
   Text          = 0;// [0:No, 1:Yes]
-  
   
 /* [Box options] */
 // Pieds PCB - PCB feet (x4) 
@@ -69,29 +96,13 @@ use <BOSL/transforms.scad>
   Resolution    = 50;//[1:100] 
 // - Tolérance - Tolerance (Panel/rails gap)
   m             = 0.9;
-  
-/* [PCB_Feet--the_board_will_not_be_exported) ] */
-// All dimensions are from the center foot axis
-// - Coin bas gauche - Low left screw hole X position
-PCBPosX         = 0;
-// - Coin bas gauche - Low left screw hole Y position
-PCBPosY         = 0;
-// - Longueur PCB - PCB Length
-pcb_hole_x_distance       = 47; // hole to hole. edge to edge is 51.2;
-// - Largeur PCB - PCB Width
-pcb_hole_y_distance        = 22; // edge to edge is 26.3;
-PCBHeight = 20; // This equals to the tallest component height + PCB board thickness. 
 
 // - Heuteur pied - Feet height
 FootHeight      = 6; // Notice this isn't the net height, it inclues wall thickness! Refactor later!
 // - Diamètre pied - Foot diameter
 FootDia         = 3.6;
 // - Diamètre trou - Hole diameter
-FootHole        = 2;  
-
-// 5.5x2.1 plug socket.
-DC_socket_hole_diameter=8;
-DC_socket_protrusion_length=16;
+FootHole        = 2;
 
 number4_screw_hole_tap_diameter=2.78;
 number4_screw_thread_diamater=2.84;
@@ -308,13 +319,13 @@ module Feet(){
 
 ///////////////////////////////////// - Main - ///////////////////////////////////////
 
-if(BPanel==1)
+if (BPanel==1)
 //Back Panel
     translate ([-m/2, 0, 0]){
         Panels();
     }
 
-if(FPanel==1)
+if (FPanel==1)
     // Front Panel
     rotate([0, 0, 180])
         translate([-Length-m/2, -Width, 0])
@@ -329,7 +340,7 @@ if(FPanel==1)
             }
     
 
-if(Text==1)
+if (Text==1)
 // Front text
     color(Couleur1){     
         translate([Length-(Thick),Thick*4,(Height-(Thick*4+(TxtSize/2)))]) {// x,y,z
@@ -342,14 +353,14 @@ if(Text==1)
     }
 
 
-if(BShell==1)
+if (BShell==1)
     // Coque bas - Bottom shell
     color(Couleur1){ 
         Coque();
     }
 
 
-if(TShell==1)
+if (TShell==1)
 // Coque haut - Top Shell
     color( Couleur1,1){
         translate([0,Width,Height+0.2]){
