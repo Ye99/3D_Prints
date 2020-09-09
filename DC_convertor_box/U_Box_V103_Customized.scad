@@ -38,14 +38,16 @@ xl4015_pcb_hole_x_distance = 47; // hole to hole. edge to edge is 51.2;
 xl4015_pcb_hole_y_distance = 22; // edge to edge is 26.3;
 xl4015_PCBHeight = 20; // This equals to the tallest component height + PCB board thickness. 
 
+// LM2596/RD board's screw holes size is 3.5mm, larger than XL4105, 3mm. But both can use M2x4 screw in this set https://smile.amazon.com/gp/product/B081DVZMHH/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&psc=1
+
 // LM2596 board
 lm2596_pcb_hole_x_distance = 30; // hole to hole. edge to edge is 43.5;
 lm2596_pcb_hole_y_distance = 16; // edge to edge is 21;
 lm2596_PCBHeight = 16; // This equals to the tallest component height + PCB board thickness. Not including the pin length underneath PCB board.
 
 // RD green board, https://www.aliexpress.com/item/995963510.html?spm=a2g0s.9042311.0.0.27424c4dcc0soI 
-rd_pcb_hole_x_distance = 36; // hole to hole. edge to edge is 43.7;
-rd_pcb_hole_y_distance = 23; // edge to edge is 30.4;
+rd_pcb_hole_x_distance = 36.2; // hole to hole. edge to edge is 43.7;
+rd_pcb_hole_y_distance = 23.2; // edge to edge is 30.4;
 rd_PCBHeight = 15; // This equals to the tallest component height + PCB board thickness. Not including the pin length underneath PCB board.
 
 pcb_hole_x_distance = selected_board=="XL4015Red" ? xl4015_pcb_hole_x_distance : (selected_board=="LM2596Blue" ? lm2596_pcb_hole_x_distance  : (selected_board=="RD_Green" ? rd_pcb_hole_x_distance : 0));
