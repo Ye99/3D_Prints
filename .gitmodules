@@ -1,0 +1,6 @@
+[submodule "MCAD"]
+	path = MCAD
+	url = git@github.com:openscad/MCAD.git
+[submodule "OpenSCAD-common-libraries"]
+	path = OpenSCAD-common-libraries
+	url = git@github.com:Ye99/OpenSCAD-common-libraries.git

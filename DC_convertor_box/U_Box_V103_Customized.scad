@@ -24,16 +24,19 @@
 ////////////////////////////////////////////////////////////////////
 
 use <BOSL/transforms.scad>
+use <BOSL/metric_screws.scad>
+use <../MCAD/regular_shapes.scad>
+include <../OpenSCAD-common-libraries/screw_matrics.scad>
 
 selected_board="XL4015Red"; //["XL4015Red", "LM2596Blue", "RD_Green"];
 
 /* [STL element to export] */
 //Coque haut - Top shell
-  TShell        = 0;// [0:No, 1:Yes]
+  TShell        = 1;// [0:No, 1:Yes]
 //Coque bas- Bottom shell
-  BShell        = 0;// [0:No, 1:Yes]
+  BShell        = 1;// [0:No, 1:Yes]
 //Panneau arrière - Back panel  
-  BPanel        = 1;// [0:No, 1:Yes]
+  BPanel        = 0;// [0:No, 1:Yes]
 //Panneau avant - Front panel
   FPanel        = 0;// [0:No, 1:Yes]
 //Texte façade - Front text
@@ -152,84 +155,83 @@ module RoundBox($a=Length, $b=Width, $c=Height) {// Cube bords arrondis
 ////////////////////////////////// - Module Coque/Shell - //////////////////////////////////         
 module Coque(){//Coque - Shell  
     Thick = Thick*2;  
-    difference(){
-        difference() {//sides decoration
+    difference() {
+        difference() { //sides decoration
             union() {    
-                difference() {//soustraction de la forme centrale - Substraction Fileted box
-                    difference() {//soustraction cube median - Median cube slicer
-                        union() {//union               
-                            difference() {//Coque    
+                difference() { //soustraction de la forme centrale - Substraction Fileted box
+                    difference() { //soustraction cube median - Median cube slicer
+                        union() { //union  
+                            difference() { //Coque  
                                 RoundBox();
-                                translate([Thick/2,Thick/2,Thick/2]) { 
-                                            RoundBox($a=Length-Thick, $b=Width-Thick, $c=Height-Thick);
-                                    }
-                            }//Fin diff Coque                            
+                                translate([Thick/2,Thick/2,Thick/2]) 
+                                    RoundBox($a=Length-Thick, $b=Width-Thick, $c=Height-Thick);
+                            } //Fin diff Coque                            
                             
                             difference() {//largeur Rails        
                                  translate([Thick+m,Thick/2,Thick/2])
-                                      RoundBox($a=Length-((2*Thick)+(2*m)), $b=Width-Thick, $c=Height-(Thick*2));
+                                    RoundBox($a=Length-((2*Thick)+(2*m)), $b=Width-Thick, $c=Height-(Thick*2));
                                  translate([((Thick+m/2)*1.55),Thick/2,Thick/2+0.1]) // +0.1 added to avoid the artefact
-                                      RoundBox($a=Length-((Thick*3)+2*m), $b=Width-Thick, $c=Height-Thick);
+                                    RoundBox($a=Length-((Thick*3)+2*m), $b=Width-Thick, $c=Height-Thick);
                             }//Fin largeur Rails
-                        }//Fin union
+                        } //Fin union
                         
                        translate([-Thick,-Thick,Height/2])// Cube à soustraire
                             cube ([Length+100, Width+100, Height], center=false);
-                    }//fin soustraction cube median - End Median cube slicer
+                    } //fin soustraction cube median - End Median cube slicer
                     
                     translate([-Thick/2,Thick,Thick])// Forme de soustraction centrale 
                         RoundBox($a=Length+Thick, $b=Width-Thick*2, $c=Height-Thick);                                
-                }                                          
+                }                                      
 
-                difference() {// Fixation box legs
+                difference() { // Fixation box legs
                     union() {
                         translate([3*Thick +5,Thick,Height/2])
                             rotate([90,0,0]) {
                                     $fn=6;
                                     cylinder(d=16,Thick/2);
-                                    }
+                            }
                             
                        translate([Length-((3*Thick)+5),Thick,Height/2]) 
                             rotate([90,0,0]){
                                     $fn=6;
                                     cylinder(d=16,Thick/2);
-                                    }
+                            }
                     }
                     
                     translate([4,Thick+Filet,Height/2-57])
-                     rotate([45,0,0]){
+                        rotate([45,0,0]){
                            cube([Length,40,40]);    
-                          }
+                        }
                    
                     translate([0,-(Thick*1.46),Height/2])
                         cube([Length,Thick*2,10]);
                 } //Fin fixation box legs
             }
 
-        union() {
-            // Cut ventilation holdes on sides
-            for(i=[0:Thick/1.5:Length-60]) {
-                // Ventilation holes part code submitted by Ettie - Thanks ;) 
-                    translate([10+i, -Dec_Thick+Dec_size, 0])
-                        cube([Vent_width, Dec_Thick, Height/3.8]);
-                    
-                    translate([(Length-20)-i, -Dec_Thick+Dec_size, 0])
-                        cube([Vent_width, Dec_Thick, Height/3.8]);
-                    
-                    translate([(Length-20)-i, Width-Dec_size, 0])
-                        cube([Vent_width, Dec_Thick, Height/3.8]);
-                    
-                    translate([10+i, Width-Dec_size, 0])
-                        cube([Vent_width, Dec_Thick, Height/3.8]);
+            union() {
+                // Cut ventilation holdes on sides
+                for(i=[0:Thick/1.5:Length-60]) {
+                    // Ventilation holes part code submitted by Ettie - Thanks ;) 
+                        translate([10+i, -Dec_Thick+Dec_size, 0])
+                            cube([Vent_width, Dec_Thick, Height/3.8]);
+                        
+                        translate([(Length-20)-i, -Dec_Thick+Dec_size, 0])
+                            cube([Vent_width, Dec_Thick, Height/3.8]);
+                        
+                        translate([(Length-20)-i, Width-Dec_size, 0])
+                            cube([Vent_width, Dec_Thick, Height/3.8]);
+                        
+                        translate([10+i, Width-Dec_size, 0])
+                            cube([Vent_width, Dec_Thick, Height/3.8]);
+                }
+                
+                // Cut ventilation holds on center
+                end = min(pcb_hole_x_distance-8, Length/2.5);
+                for(i=[2:Thick/1.5:end])
+                    translate([21+i, Width/3, 0])
+                        cube([Vent_width, 15, Height/3.8]);
             }
-            
-            // Cut ventilation holds on center
-            end = min(pcb_hole_x_distance-8, Length/2.5);
-            for(i=[2:Thick/1.5:end])
-                translate([21+i, Width/3, 0])
-                    cube([Vent_width, 15, Height/3.8]);
-        }
-    }//fin difference decoration
+        } //fin difference decoration
 
         // top and bottom connecting screw holes
         union(){ 
@@ -249,10 +251,16 @@ module Coque(){//Coque - Shell
             translate([Length-((3*Thick)+5), Width+5, Height/2-4])
                 rotate([90,0,0])
                     cylinder(d=top_bottom_connecting_screw_hole_diameter, Thick*2);
-        }//fin de sides holes
-
+        } //fin de sides holes
     }//fin de difference holes
-}// fin coque 
+    
+    mount_tab();
+    
+    back(Width)
+        right(Length)
+            zrot(180)
+                mount_tab();
+}
 
 ////////////////////////////// - Experiment - ///////////////////////////////////////////
 
@@ -322,6 +330,33 @@ module Feet(){
         foot(FootDia,FootHole,FootHeight);
 }
  
+// To mount the box on to a surface by screws.
+// TODO: export this as library. 
+module mount_tab() {
+    tab_x_length=23;
+    tab_y_length=11;
+    tab_z_length=Thick; // use wall thickness.
+    
+    // Tried and true size. :-)
+    screw_hole_diameter=5;
+    
+    difference () {
+        linear_extrude(height = tab_z_length, center = false, convexity = 10, twist = 0)
+            difference() {
+                back(tab_y_length/2)
+                    ellipse(tab_x_length, tab_y_length, $fn=80);
+                square([tab_x_length, tab_y_length]);
+            }
+            
+        back(tab_y_length/2)
+            left(tab_x_length/4)
+                up(tab_z_length)
+                    screw(screw_hole_diameter,
+                           screwlen=M5_screw_stem_length,
+                           headsize=M5_screw_head_diameter,
+                           headlen=3, countersunk=false, align="base");
+    }
+}
 
 ///////////////////////////////////// - Main - ///////////////////////////////////////
 
