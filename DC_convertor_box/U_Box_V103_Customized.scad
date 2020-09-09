@@ -28,11 +28,11 @@ use <BOSL/metric_screws.scad>
 use <../MCAD/regular_shapes.scad>
 include <../OpenSCAD-common-libraries/screw_matrics.scad>
 
-selected_board="XL4015Red"; //["XL4015Red", "LM2596Blue", "RD_Green"];
+selected_board="RD_Green"; //["XL4015Red", "LM2596Blue", "RD_Green"];
 
 /* [STL element to export] */
 //Coque haut - Top shell
-  TShell        = 1;// [0:No, 1:Yes]
+  TShell        = 0;// [0:No, 1:Yes]
 //Coque bas- Bottom shell
   BShell        = 1;// [0:No, 1:Yes]
 //Panneau arrière - Back panel  
@@ -153,7 +153,7 @@ module RoundBox($a=Length, $b=Width, $c=Height) {// Cube bords arrondis
 
       
 ////////////////////////////////// - Module Coque/Shell - //////////////////////////////////         
-module Coque(){//Coque - Shell  
+module Coque(is_bottom){//Coque - Shell  
     Thick = Thick*2;  
     difference() {
         difference() { //sides decoration
@@ -252,14 +252,16 @@ module Coque(){//Coque - Shell
                 rotate([90,0,0])
                     cylinder(d=top_bottom_connecting_screw_hole_diameter, Thick*2);
         } //fin de sides holes
-    }//fin de difference holes
+    } //fin de difference holes
     
-    mount_tab();
-    
-    back(Width)
-        right(Length)
-            zrot(180)
-                mount_tab();
+    if (is_bottom) {
+        mount_tab();
+        
+        back(Width)
+            right(Length)
+                zrot(180)
+                    mount_tab();
+    }
 }
 
 ////////////////////////////// - Experiment - ///////////////////////////////////////////
@@ -405,7 +407,7 @@ if (Text==1)
 if (BShell==1)
     // Coque bas - Bottom shell
     color(Couleur1){ 
-        Coque();
+        Coque(true);
     }
 
 
@@ -414,7 +416,7 @@ if (TShell==1)
     color( Couleur1,1){
         translate([0,Width,Height+0.2]){
             rotate([0,180,180]){
-                Coque();
+                Coque(false);
             }
         }
     }
