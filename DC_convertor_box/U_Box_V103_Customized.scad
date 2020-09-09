@@ -27,6 +27,45 @@ use <BOSL/transforms.scad>
 
 selected_board="XL4015Red"; //["XL4015Red", "LM2596Blue", "RD_Green"];
 
+/* [STL element to export] */
+//Coque haut - Top shell
+  TShell        = 0;// [0:No, 1:Yes]
+//Coque bas- Bottom shell
+  BShell        = 0;// [0:No, 1:Yes]
+//Panneau arrière - Back panel  
+  BPanel        = 1;// [0:No, 1:Yes]
+//Panneau avant - Front panel
+  FPanel        = 0;// [0:No, 1:Yes]
+//Texte façade - Front text
+  Text          = 0;// [0:No, 1:Yes]
+  
+/* [Box options] */
+// Pieds PCB - PCB feet (x4) 
+  PCBFeet       = 1;// [0:No, 1:Yes]
+// - Decorations to ventilation holes
+  Vent          = 1;// [0:No, 1:Yes]
+// - Decoration-Holes width (in mm)
+  Vent_width    = 2;   
+// - Text you want
+  txt           = "";           
+// - Font size  
+  TxtSize       = 3;                 
+// - Font  
+  Police        ="Arial Black"; 
+// - Diamètre Coin arrondi - Filet diameter  
+  Filet         = 0.1;//[0.1:12] 
+// - lissage de l'arrondi - Filet smoothness  
+  Resolution    = 50;//[1:100] 
+// - Tolérance - Tolerance (Panel/rails gap)
+  m             = 0.9;
+
+// - Heuteur pied - Feet height
+FootHeight      = 6; // Notice this isn't the net height, it inclues wall thickness! Refactor later!
+// - Diamètre pied - Foot diameter
+FootDia         = 3.6;
+// - Diamètre trou - Hole diameter
+FootHole        = 2;
+
 // 5.5x2.1 plug socket.
 DC_socket_hole_diameter=8;
 DC_socket_protrusion_length=16;
@@ -68,45 +107,6 @@ Height = PCBHeight + 11;
 
 // Wall thickness  
 Thick = 3; //[2:5]  
-  
-/* [STL element to export] */
-//Coque haut - Top shell
-  TShell        = 0;// [0:No, 1:Yes]
-//Coque bas- Bottom shell
-  BShell        = 1;// [0:No, 1:Yes]
-//Panneau arrière - Back panel  
-  BPanel        = 0;// [0:No, 1:Yes]
-//Panneau avant - Front panel
-  FPanel        = 0;// [0:No, 1:Yes]
-//Texte façade - Front text
-  Text          = 0;// [0:No, 1:Yes]
-  
-/* [Box options] */
-// Pieds PCB - PCB feet (x4) 
-  PCBFeet       = 1;// [0:No, 1:Yes]
-// - Decorations to ventilation holes
-  Vent          = 1;// [0:No, 1:Yes]
-// - Decoration-Holes width (in mm)
-  Vent_width    = 2;   
-// - Text you want
-  txt           = "";           
-// - Font size  
-  TxtSize       = 3;                 
-// - Font  
-  Police        ="Arial Black"; 
-// - Diamètre Coin arrondi - Filet diameter  
-  Filet         = 0.1;//[0.1:12] 
-// - lissage de l'arrondi - Filet smoothness  
-  Resolution    = 50;//[1:100] 
-// - Tolérance - Tolerance (Panel/rails gap)
-  m             = 0.9;
-
-// - Heuteur pied - Feet height
-FootHeight      = 6; // Notice this isn't the net height, it inclues wall thickness! Refactor later!
-// - Diamètre pied - Foot diameter
-FootDia         = 3.6;
-// - Diamètre trou - Hole diameter
-FootHole        = 2;
 
 number4_screw_hole_tap_diameter=2.78;
 number4_screw_thread_diamater=2.84;
