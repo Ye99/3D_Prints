@@ -9,50 +9,38 @@
 09/03/2016 - Added PCB feet support, fixed the shell artefact on export mode. 
 
 09/06/2020 - Ye Zhang change ventiliation holes for DC-DC buck convertor; reformat code to reduce nest level and improve readability. 
-
-*/////////////////////////// - Info - //////////////////////////////
-
-// All coordinates are starting as integrated circuit pins.
-// From the top view :
-
-//   CoordD           <---       CoordC
-//                                 ^
-//                                 ^
-//                                 ^
-//   CoordA           --->       CoordB
-
-////////////////////////////////////////////////////////////////////
+09/12/2020 - Ye Zhang Refactor code fixing magic numbers, making the module contrains computed rahter than hardcoded, making PCB board real size. 
+*/
 
 use <BOSL/transforms.scad>
 use <BOSL/metric_screws.scad>
 use <../MCAD/regular_shapes.scad>
 include <../OpenSCAD-common-libraries/screw_matrics.scad>
 
-selected_board="RD_Green"; //["XL4015Red", "LM2596Blue", "RD_Green"];
+selected_board="LM2596Blue"; //["XL4015Red", "LM2596Blue", "RD_Green", "XL4016DoubleHeatSinks"];
+echo("selected_board=", selected_board);
 
 /* [STL element to export] */
 //Coque haut - Top shell
-  TShell        = 0;// [0:No, 1:Yes]
+  top_shell    = 1;// [0:No, 1:Yes]
 //Coque bas- Bottom shell
-  BShell        = 1;// [0:No, 1:Yes]
+  bottom_shell = 1;// [0:No, 1:Yes]
 //Panneau arrière - Back panel  
-  BPanel        = 0;// [0:No, 1:Yes]
+  back_panel   = 0;// [0:No, 1:Yes]
 //Panneau avant - Front panel
-  FPanel        = 0;// [0:No, 1:Yes]
+  front_panel  = 0;// [0:No, 1:Yes]
 //Texte façade - Front text
   Text          = 0;// [0:No, 1:Yes]
   
 /* [Box options] */
 // Pieds PCB - PCB feet (x4) 
-  PCBFeet       = 1;// [0:No, 1:Yes]
+  PCBFeet = 1;// [0:No, 1:Yes]
 // - Decorations to ventilation holes
-  Vent          = 1;// [0:No, 1:Yes]
-// - Decoration-Holes width (in mm)
-  Vent_width    = 2;   
+  Vent = 1;// [0:No, 1:Yes]
 // - Text you want
-  txt           = "";           
+  txt = "";           
 // - Font size  
-  TxtSize       = 3;                 
+  TxtSize = 3;                 
 // - Font  
   Police        ="Arial Black"; 
 // - Diamètre Coin arrondi - Filet diameter  
@@ -71,7 +59,7 @@ FootHole        = 2;
 
 // 5.5x2.1 plug socket.
 DC_socket_hole_diameter=8;
-DC_socket_protrusion_length=16;
+DC_socket_protrusion_length=17;
 
 output_wire_hole_diameter=5.5;
 
@@ -79,37 +67,96 @@ output_wire_hole_diameter=5.5;
 xl4015_pcb_hole_x_distance = 47; // hole to hole. edge to edge is 51.2;
 xl4015_pcb_hole_y_distance = 22; // edge to edge is 26.3;
 xl4015_PCBHeight = 20; // This equals to the tallest component height + PCB board thickness. 
+xl4015_pcb_edge_to_hole_x_distance = 2;
+xl4015_pcb_edge_to_hole_y_distance = 2;
+xl4015_adjustment_hole_count = 2;
+// reference point is the bottom-left pcb hole
+xl4015_adjustment_hole_x1_offset = 16.5;
+xl4015_adjustment_hole_x2_offset = xl4015_adjustment_hole_x1_offset+5;
+xl4015_adjustment_hole_y1_offset = 7;
+xl4015_adjustment_hole_y2_offset = xl4015_adjustment_hole_y1_offset;
 
 // LM2596/RD board's screw holes size is 3.5mm, larger than XL4105, 3mm. But both can use M2x4 screw in this set https://smile.amazon.com/gp/product/B081DVZMHH/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&psc=1
-
 // LM2596 board
 lm2596_pcb_hole_x_distance = 30; // hole to hole. edge to edge is 43.5;
 lm2596_pcb_hole_y_distance = 16; // edge to edge is 21;
 lm2596_PCBHeight = 16; // This equals to the tallest component height + PCB board thickness. Not including the pin length underneath PCB board.
+lm2596_pcb_edge_to_hole_x_distance = 2;
+lm2596_pcb_edge_to_hole_y_distance = 2;
+lm2596_adjustment_hole_count = 1;
+// reference point is the bottom-left pcb hole
+lm2596_adjustment_hole_x1_offset = 16;
+lm2596_adjustment_hole_y1_offset = 1;
 
 // RD green board, https://www.aliexpress.com/item/995963510.html?spm=a2g0s.9042311.0.0.27424c4dcc0soI 
 rd_pcb_hole_x_distance = 36.2; // hole to hole. edge to edge is 43.7;
 rd_pcb_hole_y_distance = 23.2; // edge to edge is 30.4;
 rd_PCBHeight = 15; // This equals to the tallest component height + PCB board thickness. Not including the pin length underneath PCB board.
+rd_pcb_edge_to_hole_x_distance = 3.5;
+rd_pcb_edge_to_hole_y_distance = 3.5;
+rd_adjustment_hole_count = 1;
+// reference point is the top-left pcb hole
+rd_adjustment_hole_x1_offset = 22;
+rd_adjustment_hole_y1_offset = -0.5;
 
-pcb_hole_x_distance = selected_board=="XL4015Red" ? xl4015_pcb_hole_x_distance : (selected_board=="LM2596Blue" ? lm2596_pcb_hole_x_distance  : (selected_board=="RD_Green" ? rd_pcb_hole_x_distance : 0));
-pcb_hole_y_distance = selected_board=="XL4015Red" ? xl4015_pcb_hole_y_distance : (selected_board=="LM2596Blue" ? lm2596_pcb_hole_y_distance  : (selected_board=="RD_Green" ? rd_pcb_hole_y_distance : 0));
-PCBHeight = selected_board=="XL4015Red" ? xl4015_PCBHeight : (selected_board=="LM2596Blue" ? lm2596_PCBHeight  : (selected_board=="RD_Green" ? rd_PCBHeight : 0));
+// https://www.aliexpress.com/item/32804886645.html?spm=a2g0s.9042311.0.0.27424c4dATkzPV
+// XL4016 9A double heat sink board
+xl4016_double_heatsinks_pcb_hole_x_distance = 58.43; // hole to hole. edge to edge is 65
+xl4016_double_heatsinks_pcb_hole_y_distance = 26.3; // edge to edge is 48; heat sinks extrude from x top and bottom pcb holes both 11.5
+xl4016_double_heatsinks_PCBHeight = 22; // This equals to the tallest component height + PCB board thickness. 
+xl4016_double_heatsinks_pcb_edge_to_hole_x_distance = 3.5;
+xl4016_double_heatsinks_pcb_edge_to_hole_y_distance = 11.5;
+xl4016_double_heatsinks_adjustment_hole_count = 2;
+// reference point is the top-left pcb hole. Hold diameter is 3mm. 
+xl4016_double_heatsinks_adjustment_hole_x1_offset = -1.5;
+xl4016_double_heatsinks_adjustment_hole_x2_offset = -1.5;
+xl4016_double_heatsinks_adjustment_hole_y1_offset = 3;
+xl4016_double_heatsinks_adjustment_hole_y2_offset = xl4016_double_heatsinks_adjustment_hole_y1_offset + 10;
 
-// All dimensions are from the center foot axis
-// Low left screw hole X position
-// LM2596Blue board edge to screw hold distance is larger than 5mm (the program reserved value), add extra. 
-PCBPosX = selected_board=="XL4015Red" ? 0 : (selected_board=="LM2596Blue" ? 3  : (selected_board=="RD_Green" ? 0 : 0));;
-// - Coin bas gauche - Low left screw hole Y position
-PCBPosY = 0;
+pcb_hole_x_distance = selected_board=="XL4015Red" ? xl4015_pcb_hole_x_distance : (selected_board=="LM2596Blue" ? lm2596_pcb_hole_x_distance  : (selected_board=="RD_Green" ? rd_pcb_hole_x_distance : (selected_board=="XL4016DoubleHeatSinks" ? xl4016_double_heatsinks_pcb_hole_x_distance : 0)));
+echo("pcb_hole_x_distance=", pcb_hole_x_distance);
 
-/* [Box dimensions] */
-Length = pcb_hole_x_distance + DC_socket_protrusion_length + 32; // 95;   // This is the outmost dimention, net usable space by PCB board is much smaller.
-Width = rd_pcb_hole_y_distance + 24; // 47;   
-Height = PCBHeight + 11;
+pcb_hole_y_distance = selected_board=="XL4015Red" ? xl4015_pcb_hole_y_distance : (selected_board=="LM2596Blue" ? lm2596_pcb_hole_y_distance  : (selected_board=="RD_Green" ? rd_pcb_hole_y_distance : (selected_board=="XL4016DoubleHeatSinks" ? xl4016_double_heatsinks_pcb_hole_y_distance : 0)));
+echo("pcb_hole_y_distance=", pcb_hole_y_distance);
+
+PCBHeight = selected_board=="XL4015Red" ? xl4015_PCBHeight : (selected_board=="LM2596Blue" ? lm2596_PCBHeight : (selected_board=="RD_Green" ? rd_PCBHeight : (selected_board=="XL4016DoubleHeatSinks" ? xl4016_double_heatsinks_PCBHeight : 0)));
+echo("PCBHeight=", PCBHeight);
+
+pcb_edge_to_hole_x_distance = selected_board=="XL4015Red" ? xl4015_pcb_edge_to_hole_x_distance : (selected_board=="LM2596Blue" ? lm2596_pcb_edge_to_hole_x_distance : (selected_board=="RD_Green" ? rd_pcb_edge_to_hole_x_distance : (selected_board=="XL4016DoubleHeatSinks" ? xl4016_double_heatsinks_pcb_edge_to_hole_x_distance : 0)));
+pcb_edge_to_hole_y_distance = selected_board=="XL4015Red" ? xl4015_pcb_edge_to_hole_y_distance : (selected_board=="LM2596Blue" ? lm2596_pcb_edge_to_hole_y_distance : (selected_board=="RD_Green" ? rd_pcb_edge_to_hole_y_distance : (selected_board=="XL4016DoubleHeatSinks" ? xl4016_double_heatsinks_pcb_edge_to_hole_y_distance : 0)));
+
+adjustment_hole_count = selected_board=="XL4015Red" ? xl4015_adjustment_hole_count : (selected_board=="LM2596Blue" ? lm2596_adjustment_hole_count : (selected_board=="RD_Green" ? rd_adjustment_hole_count : (selected_board=="XL4016DoubleHeatSinks" ? xl4016_double_heatsinks_adjustment_hole_count : 0)));
+
+// reference point is the top-left pcb hole
+adjustment_hole_x1_offset = selected_board=="XL4015Red" ? xl4015_adjustment_hole_x1_offset : (selected_board=="LM2596Blue" ? lm2596_adjustment_hole_x1_offset : (selected_board=="RD_Green" ? rd_adjustment_hole_x1_offset : (selected_board=="XL4016DoubleHeatSinks" ? xl4016_double_heatsinks_adjustment_hole_x1_offset : 0)));
+adjustment_hole_x2_offset = selected_board=="XL4015Red" ? xl4015_adjustment_hole_x2_offset : (selected_board=="LM2596Blue" ? 0 : (selected_board=="RD_Green" ? 0 : (selected_board=="XL4016DoubleHeatSinks" ? xl4016_double_heatsinks_adjustment_hole_x2_offset : 0)));
+adjustment_hole_y1_offset = selected_board=="XL4015Red" ? xl4015_adjustment_hole_y1_offset : (selected_board=="LM2596Blue" ? lm2596_adjustment_hole_y1_offset  : (selected_board=="RD_Green" ? rd_adjustment_hole_y1_offset : (selected_board=="XL4016DoubleHeatSinks" ? xl4016_double_heatsinks_adjustment_hole_y1_offset : 0)));
+adjustment_hole_y2_offset = selected_board=="XL4015Red" ? xl4015_adjustment_hole_y2_offset : (selected_board=="LM2596Blue" ? 0 : (selected_board=="RD_Green" ? 0 : (selected_board=="XL4016DoubleHeatSinks" ? xl4016_double_heatsinks_adjustment_hole_y2_offset : 0)));
+adjustment_hole_diameter = 3;
+
+board_to_wall_clearance_x = 2;
+board_to_wall_clearance_y = 2;
+board_x = pcb_hole_x_distance+pcb_edge_to_hole_x_distance*2;
+board_y = pcb_hole_y_distance+pcb_edge_to_hole_y_distance*2;
 
 // Wall thickness  
-Thick = 3; //[2:5]  
+Thick = 3; //[2:5]
+
+// The empty part.
+vent_hole_x = 2.5;
+// The solid part.
+vent_grill_x = 1.3;
+// empty/total_area ratio = vent_hole_x / (vent_hole_x + vent_grill_x)
+
+/* [Box dimensions] */
+box_side_thickness = 3*Thick;
+Length = board_x + board_to_wall_clearance_x*2 + box_side_thickness*2 + DC_socket_protrusion_length; // This is the outmost dimention, net usable space by PCB board is much smaller.
+echo("Box x length=", Length);
+// 4 thickness because of the top-bottom tabs
+Width = board_y + Thick*4 + board_to_wall_clearance_y*2; // 47;
+echo("Box y length=", Width);
+Height = PCBHeight + 11;
+echo("Box z length=", Height);
 
 number4_screw_hole_tap_diameter=2.78;
 number4_screw_thread_diamater=2.84;
@@ -123,23 +170,11 @@ top_bottom_connecting_screw_hole_diameter=number4_screw_hole_diameter; // no dra
 // - Couleur coque - Shell color  
 Couleur1        = "Orange";       
 // - Couleur panneaux - Panels color    
-Couleur2        = "OrangeRed";    
-// Thick X 2 - making decorations thicker if it is a vent to make sure they go through shell
-Dec_Thick       = Vent ? Thick*2.8 : Thick; 
-// - Depth decoration
-Dec_size        = Vent ? Thick*2.8 : 0.8;
-
-//////////////////// Oversize PCB limitation -Actually disabled - ////////////////////
-//PCBL= pcb_hole_x_distance+PCBPosX>Length-(Thick*2+7) ? Length-(Thick*3+20+PCBPosX) : pcb_hole_x_distance;
-//PCBW= PCBWidth+PCBPosY>Width-(Thick*2+10) ? Width-(Thick*2+12+PCBPosY) : PCBWidth;
-// PCBL=pcb_hole_x_distance;
-// PCBW=PCBWidth;
-//echo (" PCBWidth = ",PCBW);
+Couleur2        = "OrangeRed"; 
 
 assert(Height > FootHeight + PCBHeight, "Make box taller please");
 
 /////////// - Boitier générique bord arrondis - Generic Fileted box - //////////
-
 module RoundBox($a=Length, $b=Width, $c=Height) {// Cube bords arrondis
     $fn=Resolution;
     translate([0,Filet,Filet]) {  
@@ -151,10 +186,50 @@ module RoundBox($a=Length, $b=Width, $c=Height) {// Cube bords arrondis
     }
 }
 
-      
+module adjustment_hole() {
+    screw(adjustment_hole_diameter,
+       screwlen=M4_screw_stem_length,
+       headsize=adjustment_hole_diameter,
+       headlen=3, countersunk=false, align="base");
+}
+
+// This transfers reference from PCB edge to system coordinates, which is same as box x/y/z zero. 
+board_edge_x=box_side_thickness+board_to_wall_clearance_x;
+// Thick*2 because there are wall+tab.
+board_edge_y=Thick*2+board_to_wall_clearance_y;
+module offset_pcb() {
+    back(board_edge_y)
+        right(board_edge_x)
+            children();
+}
+
+//// Adjustment hole references PCB screw hole. This make children reference PCB edge.
+module offset_pcb_hole() {
+    back(pcb_edge_to_hole_y_distance)
+        right(pcb_edge_to_hole_x_distance) 
+            children();
+}
+
+module CutAdjustmentHole() {
+    // At least one hole. 
+    right(adjustment_hole_x1_offset)
+        back(adjustment_hole_y1_offset)
+            adjustment_hole();
+    
+    if (adjustment_hole_count == 2) {
+        right(adjustment_hole_x2_offset)
+            back(adjustment_hole_y2_offset)
+                adjustment_hole();
+    }
+}
+
 ////////////////////////////////// - Module Coque/Shell - //////////////////////////////////         
 module Coque(is_bottom){//Coque - Shell  
-    Thick = Thick*2;  
+    Thick = Thick*2;
+    tab_lower_screw_hole_z_offset = Height/2-4;
+    tab_upper_screw_hole_z_offset = Height/2+4;
+    tab_x_offset = 3*Thick+5;
+    
     difference() {
         difference() { //sides decoration
             union() {    
@@ -165,15 +240,15 @@ module Coque(is_bottom){//Coque - Shell
                                 RoundBox();
                                 translate([Thick/2,Thick/2,Thick/2]) 
                                     RoundBox($a=Length-Thick, $b=Width-Thick, $c=Height-Thick);
-                            } //Fin diff Coque                            
+                            }
                             
                             difference() {//largeur Rails        
                                  translate([Thick+m,Thick/2,Thick/2])
                                     RoundBox($a=Length-((2*Thick)+(2*m)), $b=Width-Thick, $c=Height-(Thick*2));
                                  translate([((Thick+m/2)*1.55),Thick/2,Thick/2+0.1]) // +0.1 added to avoid the artefact
                                     RoundBox($a=Length-((Thick*3)+2*m), $b=Width-Thick, $c=Height-Thick);
-                            }//Fin largeur Rails
-                        } //Fin union
+                            } 
+                        }
                         
                        translate([-Thick,-Thick,Height/2])// Cube à soustraire
                             cube ([Length+100, Width+100, Height], center=false);
@@ -183,75 +258,78 @@ module Coque(is_bottom){//Coque - Shell
                         RoundBox($a=Length+Thick, $b=Width-Thick*2, $c=Height-Thick);                                
                 }                                      
 
-                difference() { // Fixation box legs
+                // Box tabs
+                difference() { 
                     union() {
-                        translate([3*Thick +5,Thick,Height/2])
+                        translate([tab_x_offset, Thick, Height/2])
                             rotate([90,0,0]) {
-                                    $fn=6;
+                                    $fn=6; // Smart, use cylinder to generate hexagon!
                                     cylinder(d=16,Thick/2);
                             }
                             
-                       translate([Length-((3*Thick)+5),Thick,Height/2]) 
+                       translate([Length-(tab_x_offset), Thick, Height/2]) 
                             rotate([90,0,0]){
                                     $fn=6;
                                     cylinder(d=16,Thick/2);
                             }
                     }
                     
-                    translate([4,Thick+Filet,Height/2-57])
+                    // Cut tab bottom gentle slop, so no support is needed during print. 
+                    translate([4, Thick+Filet, Height/2-57])
                         rotate([45,0,0]){
                            cube([Length,40,40]);    
                         }
                    
-                    translate([0,-(Thick*1.46),Height/2])
+                    translate([0, -(Thick*1.46), Height/2])
                         cube([Length,Thick*2,10]);
+                        
                 } //Fin fixation box legs
             }
 
+            ventilation_hole_z_length = tab_lower_screw_hole_z_offset - top_bottom_connecting_screw_hole_diameter/2 - 1;
+            iteration_step = vent_hole_x + vent_grill_x;
             union() {
-                // Cut ventilation holdes on sides
-                for(i=[0:Thick/1.5:Length-60]) {
-                    // Ventilation holes part code submitted by Ettie - Thanks ;) 
-                        translate([10+i, -Dec_Thick+Dec_size, 0])
-                            cube([Vent_width, Dec_Thick, Height/3.8]);
-                        
-                        translate([(Length-20)-i, -Dec_Thick+Dec_size, 0])
-                            cube([Vent_width, Dec_Thick, Height/3.8]);
-                        
-                        translate([(Length-20)-i, Width-Dec_size, 0])
-                            cube([Vent_width, Dec_Thick, Height/3.8]);
-                        
-                        translate([10+i, Width-Dec_size, 0])
-                            cube([Vent_width, Dec_Thick, Height/3.8]);
-                }
+                // Cut ventilation holes on sides
+                right(board_edge_x)
+                    for(i=[0:iteration_step:board_x]) {
+                            right(i)
+                                cube([vent_hole_x, board_edge_y, ventilation_hole_z_length]);
+                            
+                            translate([i, Width-board_edge_y, 0])
+                                cube([vent_hole_x, board_edge_y, ventilation_hole_z_length]);
+                    }
                 
-                // Cut ventilation holds on center
-                end = min(pcb_hole_x_distance-8, Length/2.5);
-                for(i=[2:Thick/1.5:end])
-                    translate([21+i, Width/3, 0])
-                        cube([Vent_width, 15, Height/3.8]);
+                // Cut ventilation holes on center
+                offset_pcb() 
+                    offset_pcb_hole()
+                            for (i=[4:iteration_step:pcb_hole_x_distance-4]) {
+                                right(i)
+                                    cube([vent_hole_x, pcb_hole_y_distance, ventilation_hole_z_length]);
+                            }
             }
-        } //fin difference decoration
-
+        }
+        
         // top and bottom connecting screw holes
         union(){ 
             $fn=50;
-            translate([3*Thick+5, 20, Height/2+4])
+            
+            translate([tab_x_offset, 20, tab_upper_screw_hole_z_offset])
                 rotate([90,0,0])
                     cylinder(d=top_bottom_connecting_screw_tap_diameter, 20);
                 
-            translate([Length-((3*Thick)+5), 20, Height/2+4])
+            translate([Length-tab_x_offset, 20, tab_upper_screw_hole_z_offset])
                 rotate([90,0,0])
                     cylinder(d=top_bottom_connecting_screw_tap_diameter, 20);
                 
-            translate([3*Thick+5, Width+5, Height/2-4])
+            translate([tab_x_offset, Width+5, tab_lower_screw_hole_z_offset])
                 rotate([90,0,0])
-                    cylinder(d=top_bottom_connecting_screw_hole_diameter, Thick*2);
+                   cylinder(d=top_bottom_connecting_screw_hole_diameter, Thick*2);
                 
-            translate([Length-((3*Thick)+5), Width+5, Height/2-4])
+            translate([Length-tab_x_offset, Width+5, tab_lower_screw_hole_z_offset])
                 rotate([90,0,0])
                     cylinder(d=top_bottom_connecting_screw_hole_diameter, Thick*2);
-        } //fin de sides holes
+        }
+        
     } //fin de difference holes
     
     if (is_bottom) {
@@ -261,11 +339,10 @@ module Coque(is_bottom){//Coque - Shell
             right(Length)
                 zrot(180)
                     mount_tab();
+        
+        Feet();
     }
 }
-
-////////////////////////////// - Experiment - ///////////////////////////////////////////
-
 
 ///////////////////////////////// - Module Front/Back Panels - //////////////////////////
 module Panels(){
@@ -299,37 +376,35 @@ module foot(FootDia, FootHole, FootHeight){
                 cylinder(d=FootHole, FootHeight+1, $fn=100);
             }          
 }
-  
+
 module Feet(){
-    board_edge_x=3*Thick+2;
-    board_edge_y=Thick+5;
-    
-    //////////////////// - PCB only visible in the preview mode - /////////////////////    
-    translate([board_edge_x, board_edge_y, FootHeight-(Thick)+3]) { // TODO: fix these magic numbers!
-        // This code assumes screw hole is 5mm away from PCB board edge. This is not the actual board size. 
-        // You can't trust the PCB fix simulation. Need to fix this later!
-        %cube([pcb_hole_x_distance+10, pcb_hole_y_distance+10, PCBHeight]);
-        
-        translate([pcb_hole_x_distance/2,pcb_hole_y_distance/2,0.5]) { 
-            color("Olive")
-            %text("PCB", halign="center", valign="center", font="Arial black");
+    offset_pcb()
+    {
+        // PCB contour to check fitness. 
+        up(FootHeight-(Thick)+3) { // TODO: fix these magic numbers!
+            %cube([board_x, board_y, PCBHeight]);
+            
+            up(PCBHeight+M4_screw_stem_length)
+                offset_pcb_hole() 
+                    %CutAdjustmentHole();
         }
+        
+        ////////////////////////////// - 4 Feet - ///////////////////////////////     
+        up(0.5)
+            offset_pcb_hole() {
+                    foot(FootDia, FootHole, FootHeight);
+                    
+                    right(pcb_hole_x_distance)
+                        foot(FootDia, FootHole, FootHeight);
+                    
+                    right(pcb_hole_x_distance)
+                        back(pcb_hole_y_distance)
+                            foot(FootDia,FootHole,FootHeight);
+                    
+                    back(pcb_hole_y_distance)
+                        foot(FootDia,FootHole,FootHeight);
+            }
     }
-    
-    ////////////////////////////// - 4 Feet - //////////////////////////////////////////     
-    first_screw_hole_x=board_edge_x+5;
-    first_screw_hole_y=board_edge_y+5;
-    translate([first_screw_hole_x, first_screw_hole_y, 0.5])
-        foot(FootDia, FootHole, FootHeight);
-    
-    translate([first_screw_hole_x+pcb_hole_x_distance, first_screw_hole_y, 0.5])
-        foot(FootDia, FootHole, FootHeight);
-    
-    translate([first_screw_hole_x+pcb_hole_x_distance, first_screw_hole_y+pcb_hole_y_distance, 0.5])
-        foot(FootDia,FootHole,FootHeight);
-    
-    translate([first_screw_hole_x, first_screw_hole_y+pcb_hole_y_distance, 0.5])
-        foot(FootDia,FootHole,FootHeight);
 }
  
 // To mount the box on to a surface by screws.
@@ -362,7 +437,7 @@ module mount_tab() {
 
 ///////////////////////////////////// - Main - ///////////////////////////////////////
 
-if (BPanel==1)
+if (back_panel==1)
     //Back Panel
     translate ([-m/2, 0, 0]){
         difference() {
@@ -376,7 +451,7 @@ if (BPanel==1)
         }
     }
 
-if (FPanel==1)
+if (front_panel==1)
     // Front Panel
     rotate([0, 0, 180])
         translate([-Length-m/2, -Width, 0])
@@ -392,7 +467,6 @@ if (FPanel==1)
     
 
 if (Text==1)
-// Front text
     color(Couleur1){     
         translate([Length-(Thick),Thick*4,(Height-(Thick*4+(TxtSize/2)))]) {// x,y,z
             rotate([90,0,90]){
@@ -403,26 +477,23 @@ if (Text==1)
          }
     }
 
+if (bottom_shell==1)    
+    Coque(true);
 
-if (BShell==1)
-    // Coque bas - Bottom shell
-    color(Couleur1){ 
-        Coque(true);
-    }
-
-
-if (TShell==1)
-// Coque haut - Top Shell
-    color( Couleur1,1){
-        translate([0,Width,Height+0.2]){
+if (top_shell==1)
+    difference() {
+        translate([0, Width, Height+0.2]) {
             rotate([0,180,180]){
                 Coque(false);
             }
         }
-    }
 
-if (BShell==1 && PCBFeet==1)
-    // Feet
-    translate([PCBPosX, PCBPosY, 0]) { 
-        Feet();
+        // Cut adjustment hole
+        offset_pcb()
+        {
+            up(FootHeight-(Thick)+3+PCBHeight+M4_screw_stem_length) { // TODO: fix these magic numbers!            
+                offset_pcb_hole()
+                    CutAdjustmentHole();
+            }
+        }
     }
