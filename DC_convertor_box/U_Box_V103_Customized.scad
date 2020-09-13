@@ -24,7 +24,7 @@ echo("selected_board=", selected_board);
 //Coque haut - Top shell
   top_shell    = 1;// [0:No, 1:Yes]
 //Coque bas- Bottom shell
-  bottom_shell = 1;// [0:No, 1:Yes]
+  bottom_shell = 0;// [0:No, 1:Yes]
 //Panneau arrière - Back panel  
   back_panel   = 0;// [0:No, 1:Yes]
 //Panneau avant - Front panel
@@ -81,8 +81,8 @@ xl4015_adjustment_hole_y2_offset = xl4015_adjustment_hole_y1_offset;
 lm2596_pcb_hole_x_distance = 30; // hole to hole. edge to edge is 43.5;
 lm2596_pcb_hole_y_distance = 16; // edge to edge is 21;
 lm2596_PCBHeight = 16; // This equals to the tallest component height + PCB board thickness. Not including the pin length underneath PCB board.
-lm2596_pcb_edge_to_hole_x_distance = 2;
-lm2596_pcb_edge_to_hole_y_distance = 2;
+lm2596_pcb_edge_to_hole_x_distance = 6.5;
+lm2596_pcb_edge_to_hole_y_distance = 3;
 lm2596_adjustment_hole_count = 1;
 // reference point is the bottom-left pcb hole
 lm2596_adjustment_hole_x1_offset = 16;
@@ -92,10 +92,10 @@ lm2596_adjustment_hole_y1_offset = 1;
 rd_pcb_hole_x_distance = 36.2; // hole to hole. edge to edge is 43.7;
 rd_pcb_hole_y_distance = 23.2; // edge to edge is 30.4;
 rd_PCBHeight = 15; // This equals to the tallest component height + PCB board thickness. Not including the pin length underneath PCB board.
-rd_pcb_edge_to_hole_x_distance = 3.5;
-rd_pcb_edge_to_hole_y_distance = 3.5;
+rd_pcb_edge_to_hole_x_distance = 4;
+rd_pcb_edge_to_hole_y_distance = 4;
 rd_adjustment_hole_count = 1;
-// reference point is the top-left pcb hole
+// reference point is the bottom-left pcb hole
 rd_adjustment_hole_x1_offset = 22;
 rd_adjustment_hole_y1_offset = -0.5;
 
@@ -107,7 +107,7 @@ xl4016_double_heatsinks_PCBHeight = 22; // This equals to the tallest component 
 xl4016_double_heatsinks_pcb_edge_to_hole_x_distance = 3.5;
 xl4016_double_heatsinks_pcb_edge_to_hole_y_distance = 11.5;
 xl4016_double_heatsinks_adjustment_hole_count = 2;
-// reference point is the top-left pcb hole. Hold diameter is 3mm. 
+// reference point is the bottom-left pcb hole
 xl4016_double_heatsinks_adjustment_hole_x1_offset = -1.5;
 xl4016_double_heatsinks_adjustment_hole_x2_offset = -1.5;
 xl4016_double_heatsinks_adjustment_hole_y1_offset = 3;
@@ -132,7 +132,8 @@ adjustment_hole_x1_offset = selected_board=="XL4015Red" ? xl4015_adjustment_hole
 adjustment_hole_x2_offset = selected_board=="XL4015Red" ? xl4015_adjustment_hole_x2_offset : (selected_board=="LM2596Blue" ? 0 : (selected_board=="RD_Green" ? 0 : (selected_board=="XL4016DoubleHeatSinks" ? xl4016_double_heatsinks_adjustment_hole_x2_offset : 0)));
 adjustment_hole_y1_offset = selected_board=="XL4015Red" ? xl4015_adjustment_hole_y1_offset : (selected_board=="LM2596Blue" ? lm2596_adjustment_hole_y1_offset  : (selected_board=="RD_Green" ? rd_adjustment_hole_y1_offset : (selected_board=="XL4016DoubleHeatSinks" ? xl4016_double_heatsinks_adjustment_hole_y1_offset : 0)));
 adjustment_hole_y2_offset = selected_board=="XL4015Red" ? xl4015_adjustment_hole_y2_offset : (selected_board=="LM2596Blue" ? 0 : (selected_board=="RD_Green" ? 0 : (selected_board=="XL4016DoubleHeatSinks" ? xl4016_double_heatsinks_adjustment_hole_y2_offset : 0)));
-adjustment_hole_diameter = 3;
+
+adjustment_hole_diameter = 3.5;
 
 board_to_wall_clearance_x = 2;
 board_to_wall_clearance_y = 2;
@@ -203,7 +204,7 @@ module offset_pcb() {
             children();
 }
 
-//// Adjustment hole references PCB screw hole. This make children reference PCB edge.
+//// PCB parts (hole) references PCB screw hole. This make them reference PCB edge.
 module offset_pcb_hole() {
     back(pcb_edge_to_hole_y_distance)
         right(pcb_edge_to_hole_x_distance) 
@@ -381,7 +382,7 @@ module Feet(){
     offset_pcb()
     {
         // PCB contour to check fitness. 
-        up(FootHeight-(Thick)+3) { // TODO: fix these magic numbers!
+        up(FootHeight) {
             %cube([board_x, board_y, PCBHeight]);
             
             up(PCBHeight+M4_screw_stem_length)
