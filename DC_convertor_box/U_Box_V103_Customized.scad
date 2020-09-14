@@ -22,13 +22,13 @@ echo("selected_board=", selected_board);
 
 /* [STL element to export] */
 //Coque haut - Top shell
-  top_shell    = 1;// [0:No, 1:Yes]
+  top_shell    = 0;// [0:No, 1:Yes]
 //Coque bas- Bottom shell
   bottom_shell = 0;// [0:No, 1:Yes]
 //Panneau arrière - Back panel  
   back_panel   = 0;// [0:No, 1:Yes]
 //Panneau avant - Front panel
-  front_panel  = 0;// [0:No, 1:Yes]
+  front_panel  = 1;// [0:No, 1:Yes]
 //Texte façade - Front text
   Text          = 0;// [0:No, 1:Yes]
   
@@ -51,7 +51,7 @@ echo("selected_board=", selected_board);
   m             = 0.9;
 
 // - Heuteur pied - Feet height
-FootHeight      = 6; // Notice this isn't the net height, it inclues wall thickness! Refactor later!
+FootHeight      = 3; // Notice this is the net height above bottom, it doesn't include box wall thickness.
 // - Diamètre pied - Foot diameter
 FootDia         = 3.6;
 // - Diamètre trou - Hole diameter
@@ -100,6 +100,7 @@ rd_adjustment_hole_x1_offset = 22;
 rd_adjustment_hole_y1_offset = -0.5;
 
 // https://www.aliexpress.com/item/32804886645.html?spm=a2g0s.9042311.0.0.27424c4dATkzPV
+// https://www.aliexpress.com/item/32804886645.html?spm=a2g0s.9042311.0.0.27424c4dhF0qUw
 // XL4016 9A double heat sink board
 xl4016_double_heatsinks_pcb_hole_x_distance = 58.43; // hole to hole. edge to edge is 65
 xl4016_double_heatsinks_pcb_hole_y_distance = 26.3; // edge to edge is 48; heat sinks extrude from x top and bottom pcb holes both 11.5
@@ -133,7 +134,7 @@ adjustment_hole_x2_offset = selected_board=="XL4015Red" ? xl4015_adjustment_hole
 adjustment_hole_y1_offset = selected_board=="XL4015Red" ? xl4015_adjustment_hole_y1_offset : (selected_board=="LM2596Blue" ? lm2596_adjustment_hole_y1_offset  : (selected_board=="RD_Green" ? rd_adjustment_hole_y1_offset : (selected_board=="XL4016DoubleHeatSinks" ? xl4016_double_heatsinks_adjustment_hole_y1_offset : 0)));
 adjustment_hole_y2_offset = selected_board=="XL4015Red" ? xl4015_adjustment_hole_y2_offset : (selected_board=="LM2596Blue" ? 0 : (selected_board=="RD_Green" ? 0 : (selected_board=="XL4016DoubleHeatSinks" ? xl4016_double_heatsinks_adjustment_hole_y2_offset : 0)));
 
-adjustment_hole_diameter = 3.5;
+adjustment_hole_diameter = selected_board=="XL4016DoubleHeatSinks" ? 5.5 : 0; // 3.5;
 
 board_to_wall_clearance_x = 2;
 board_to_wall_clearance_y = 2;
@@ -141,10 +142,10 @@ board_x = pcb_hole_x_distance+pcb_edge_to_hole_x_distance*2;
 board_y = pcb_hole_y_distance+pcb_edge_to_hole_y_distance*2;
 
 // Wall thickness  
-Thick = 3; //[2:5]
+Thick = 2; //[2:5]
 
 // The empty part.
-vent_hole_x = 2.5;
+vent_hole_x = 3.5;
 // The solid part.
 vent_grill_x = 1.3;
 // empty/total_area ratio = vent_hole_x / (vent_hole_x + vent_grill_x)
@@ -156,7 +157,7 @@ echo("Box x length=", Length);
 // 4 thickness because of the top-bottom tabs
 Width = board_y + Thick*4 + board_to_wall_clearance_y*2; // 47;
 echo("Box y length=", Width);
-Height = PCBHeight + 11;
+Height = PCBHeight + Thick*2 + FootHeight + 2; // Add 2 as clearance.
 echo("Box z length=", Height);
 
 number4_screw_hole_tap_diameter=2.78;
@@ -173,7 +174,7 @@ Couleur1        = "Orange";
 // - Couleur panneaux - Panels color    
 Couleur2        = "OrangeRed"; 
 
-assert(Height > FootHeight + PCBHeight, "Make box taller please");
+assert(Height >= Thick*2 + FootHeight + PCBHeight, "Make box taller please");
 
 /////////// - Boitier générique bord arrondis - Generic Fileted box - //////////
 module RoundBox($a=Length, $b=Width, $c=Height) {// Cube bords arrondis
@@ -226,7 +227,7 @@ module CutAdjustmentHole() {
 
 ////////////////////////////////// - Module Coque/Shell - //////////////////////////////////         
 module Coque(is_bottom){//Coque - Shell  
-    Thick = Thick*2;
+    Thick = Thick*2; // Why overload Thick? Hard to understand its current value. 
     tab_lower_screw_hole_z_offset = Height/2-4;
     tab_upper_screw_hole_z_offset = Height/2+4;
     tab_x_offset = 3*Thick+5;
@@ -363,9 +364,9 @@ module Panels(){
 module foot(FootDia, FootHole, FootHeight){
     Filet=4; // when you change this, it will impact raise of foot. Bad design that they are coupled. Refactor later!
     color("Blue")   
-        translate([0, 0, Filet-1.5])
+        translate([0, 0, Thick])
             difference() {
-                cylinder(d=FootDia+Filet, FootHeight-Thick, $fn=100);
+                cylinder(d=FootDia+Filet, FootHeight, $fn=100);
                     
                 rotate_extrude($fn=100)
                     translate([(FootDia+Filet*2)/2, Filet, 0])
@@ -379,10 +380,12 @@ module foot(FootDia, FootHole, FootHeight){
 }
 
 module Feet(){
+    echo("From Feet, Thick is ", Thick);
+    
     offset_pcb()
     {
         // PCB contour to check fitness. 
-        up(FootHeight) {
+        up(Thick + FootHeight) {
             %cube([board_x, board_y, PCBHeight]);
             
             up(PCBHeight+M4_screw_stem_length)
@@ -391,20 +394,19 @@ module Feet(){
         }
         
         ////////////////////////////// - 4 Feet - ///////////////////////////////     
-        up(0.5)
-            offset_pcb_hole() {
+        offset_pcb_hole() {
+                foot(FootDia, FootHole, FootHeight);
+                
+                right(pcb_hole_x_distance)
                     foot(FootDia, FootHole, FootHeight);
-                    
-                    right(pcb_hole_x_distance)
-                        foot(FootDia, FootHole, FootHeight);
-                    
-                    right(pcb_hole_x_distance)
-                        back(pcb_hole_y_distance)
-                            foot(FootDia,FootHole,FootHeight);
-                    
+                
+                right(pcb_hole_x_distance)
                     back(pcb_hole_y_distance)
                         foot(FootDia,FootHole,FootHeight);
-            }
+                
+                back(pcb_hole_y_distance)
+                    foot(FootDia,FootHole,FootHeight);
+        }
     }
 }
  
@@ -492,7 +494,7 @@ if (top_shell==1)
         // Cut adjustment hole
         offset_pcb()
         {
-            up(FootHeight-(Thick)+3+PCBHeight+M4_screw_stem_length) { // TODO: fix these magic numbers!            
+            up(FootHeight+PCBHeight+M4_screw_stem_length) {
                 offset_pcb_hole()
                     CutAdjustmentHole();
             }
