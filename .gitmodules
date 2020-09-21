@@ -4,3 +4,6 @@
 [submodule "OpenSCAD-common-libraries"]
 	path = OpenSCAD-common-libraries
 	url = git@github.com:Ye99/OpenSCAD-common-libraries.git
+[submodule "PrinterFilamentHolder/OpenSCAD-common-libraries"]
+	path = PrinterFilamentHolder/OpenSCAD-common-libraries
+	url = git@github.com:Ye99/OpenSCAD-common-libraries.git
