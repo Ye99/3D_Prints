@@ -27,7 +27,7 @@ module cut_corner3() {
         up(6)
             left(41)
                 zrot(45)   
-                    #cube([25, 20, 12], center=true);
+                    cube([25, 20, 12], center=true);
 }
 
 module cut_corner4() {
@@ -35,7 +35,7 @@ module cut_corner4() {
         up(6)
             right(41)
                 zrot(-45)   
-                    #cube([25, 20, 12], center=true);
+                    cube([25, 20, 12], center=true);
 }
 
 usb_hole_z_length=6.9;
@@ -62,9 +62,10 @@ case_2_width=77.26;
 case_2_length=158.4;
 case_2_height=11.38;
 
+/*
 // Case #1
 difference() {
-    import("Huawei_P20_Pro_case/files/P20_Pro_case_closed.stl");
+    import("Huawei_P20_Pro_case/files/closed_exported_from_step.stl"); // P20_Pro_case_closed.stl
     
     cut_top();
     
@@ -75,7 +76,7 @@ difference() {
         right(case_1_width/2-1)
             up(5)
                 #cut_volume_power_hole();
-}
+} */
 
 // Case #2
 2nd_case_right_shift_distance=case_2_width/2 + 10;
@@ -100,17 +101,17 @@ difference() {
         
         fwd(case_2_length/2-2)
             up(6.7)
-            #cut_usb_hole();
+                cut_usb_hole();
         
         fwd(case_2_length/2-2)
             left(16)
                 up(6.7)
-                    #cut_mic_hole();
+                    cut_mic_hole();
         
         fwd(case_2_length/2-2)
             right(16)
                 up(6.7)
-                    #cut_mic_hole();
+                    cut_mic_hole();
     }
 }
                     
