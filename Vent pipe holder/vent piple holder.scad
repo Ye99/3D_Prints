@@ -55,7 +55,7 @@ module MakePipe(start,stop){
 }
 
 module MakeRing(Diameter) {
-    cylinder(r=Diameter/2, h=0.1, $fn=50);
+    cylinder(r=Diameter/2, h=0.1, $fn=100);
 }
 
 module full_piple() {
@@ -65,7 +65,7 @@ module full_piple() {
 }
 
 module mount_screw() {
-    screw(m3_screw_hole_diameter,
+    screw(M5_screw_hole_diameter,
        screwlen=30,
        headsize=m3_screw_head_diameter,
        headlen=3, countersunk=false, align="base");
