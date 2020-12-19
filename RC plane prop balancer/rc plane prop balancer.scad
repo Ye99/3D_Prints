@@ -5,7 +5,7 @@ include <../OpenSCAD-common-libraries/roundedCube.scad>
 // https://smile.amazon.com/gp/product/B07PWBNQ5V/ref=ppx_yo_dt_b_asin_title_o01_s00?ie=UTF8&psc=1 
 // propeller center holes
 diameter_large = 9.5; // actual 9.52
-diameter_small = 6.1; // actual 6.1
+diameter_small = 6.2; // actual 6.2
 // large hole concave depth 3.1.
 
 prop_hub_diameter=13;
