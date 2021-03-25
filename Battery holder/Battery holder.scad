@@ -5,14 +5,14 @@ include <BOSL/constants.scad>
 use <BOSL/transforms.scad>
 include <../OpenSCAD-common-libraries/roundedCube.scad>
 
-wall_thickness=4.3;
+wall_thickness=5;
 
 // Battery is cylinder shape. 
 battery_length = 66;
 battery_diameter = 26;
 
 // Output wires
-wire_thickness = 3.5;
+wire_thickness = 4;
 wire_hole_diameter = wire_thickness+0.12;
 
 contact_width = 10; //
@@ -23,7 +23,7 @@ cathode_height = 8;
 
 // This is the sizes inside the walls.
 compartment_x_length=battery_length+anode_height+(cathode_height/2); // make cathod spring compressed
-compartment_y_length=battery_diameter+0.6;
+compartment_y_length=battery_diameter+1.5;
 compartment_z_length=compartment_y_length; 
 
 screw_tab_x_length=12; // at each end. 
