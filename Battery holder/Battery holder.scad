@@ -5,14 +5,14 @@ include <BOSL/constants.scad>
 use <BOSL/transforms.scad>
 include <../OpenSCAD-common-libraries/roundedCube.scad>
 
-wall_thickness=5;
+wall_thickness=5.2;
 
 // Battery is cylinder shape. 
 battery_length = 66;
 battery_diameter = 26;
 
 // Output wires
-wire_thickness = 4;
+wire_thickness = 4.1;
 wire_hole_diameter = wire_thickness+0.12;
 
 contact_width = 10; //
