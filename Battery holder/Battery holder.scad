@@ -5,11 +5,17 @@ include <BOSL/constants.scad>
 use <BOSL/transforms.scad>
 include <../OpenSCAD-common-libraries/roundedCube.scad>
 
+selected_battery_size="32700"; //["32700", "26650"]; These are norminalized battery size options. 
+echo("selected_battery_size=", selected_battery_size);
+
 wall_thickness=5.2;
 
 // Battery is cylinder shape. 
-battery_length = 66;
-battery_diameter = 26;
+battery_length = selected_battery_size=="26650" ? 66 : (selected_battery_size=="32700" ? 70 : 0);
+echo("battery_length=", battery_length);
+
+battery_diameter = selected_battery_size=="26650" ? 26 : (selected_battery_size=="32700" ? 32 : 0);
+echo("battery_diameter=", battery_diameter);
 
 // Output wires
 wire_thickness = 4.1;
@@ -38,31 +44,32 @@ cube_offset=(cut_diameter+cut_depth)/2;
 // To easily insert/remove battery.
 module side_cut() {
     diameter=compartment_x_length*0.7;
+    
     up(wall_thickness/2+compartment_y_length/2)
-    xrot(90)
-        cylinder(h = wall_thickness, d=diameter, center = true, $fn=90);
+        xrot(90)
+            cylinder(h = wall_thickness, d=diameter, center = true, $fn=90);
 }
 
-module wire_hole() {
+module wire_hole(raise) {
     diameter=compartment_x_length*2/3;
-    back(compartment_y_length/2)
-        cube([wire_hole_diameter, compartment_y_length, wire_hole_diameter], center = true);
+    
+    up(raise)
+        back(compartment_y_length/2)
+            cube([wire_hole_diameter, compartment_y_length, wire_hole_diameter], center = true);
 }
 
 module battery_holder() {
     difference() {    
         roundedCube([compartment_x_length+(wall_thickness*2), compartment_y_length+(wall_thickness*2), compartment_z_length+wall_thickness], 
             center=true, r=rounded_corner_radius,
-            z=false,
+            z=true,
             y=false,
             x=false);
-        
-       up(wall_thickness/2)
-            roundedCube([compartment_x_length, compartment_y_length, compartment_z_length], 
-                center=true, r=rounded_corner_radius,
-                z=false,
-                y=false,
-                x=false);
+       
+       compartment_center_raise=wall_thickness/2;
+       #up(compartment_center_raise)
+            cube([compartment_x_length, compartment_y_length, compartment_z_length], 
+                center=true);
       
       y_offset=(compartment_y_length+wall_thickness)/2;
       back(y_offset)  
@@ -73,10 +80,10 @@ module battery_holder() {
       
       x_offset=(compartment_x_length+wire_hole_diameter)/2;
       right(x_offset)
-        #wire_hole();
+        #wire_hole(compartment_center_raise);
         
       left(x_offset)
-        #wire_hole();
+        #wire_hole(compartment_center_raise);
     }
 }
 
