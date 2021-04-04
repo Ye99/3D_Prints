@@ -4,6 +4,8 @@
 include <BOSL/constants.scad>
 use <BOSL/transforms.scad>
 include <../OpenSCAD-common-libraries/roundedCube.scad>
+include <../OpenSCAD-common-libraries/screw_matrics.scad>
+use <BOSL/metric_screws.scad>
 
 selected_battery_size="26650"; //["32700", "26650"]; These are norminalized battery size options. 
 echo("selected_battery_size=", selected_battery_size);
@@ -37,7 +39,7 @@ compartment_y_length=battery_diameter+1.5;
 compartment_z_length=compartment_y_length; 
 
 screw_tab_x_length=12; // at each end. 
-rounded_corner_radius=2;
+rounded_corner_radius=1;
 
 // Motor shaft cut metrics.
 cut_height=5.82;
@@ -50,7 +52,9 @@ protecton_board_diameter=16;
 protecton_board_thickness=2;
 
 // If false, for charging configuration.
-has_side_compartment = true;
+has_side_compartment=true;
+// This is net inside size.
+comartment_x_length=5;
 
 // To easily insert/remove battery.
 module side_cut() {
@@ -58,7 +62,8 @@ module side_cut() {
     
     up(wall_thickness/2+compartment_y_length/2)
         xrot(90)
-            cylinder(h = wall_thickness, d=diameter, center = true, $fn=90);
+            // * 2 to make sure OpenSCAD displays the surface display correctly. Though without it the final print result is corret. 
+            cylinder(h = wall_thickness*2, d=diameter, center = true, $fn=90); 
 }
 
 module draw_horizontal_cut(raise, horizontal_cut_diameter) {
@@ -114,14 +119,22 @@ module short_wire_channel(y_length, width) {
         }
 }
 
+/* Cut for wires between protection board and appliance to be powered */
+module compartment_wire_out_cut(x_length, y_length, z_length) {
+    cube([x_length, y_length, z_length], center=true);
+}
+
 module battery_holder(has_side_compartment) {
     difference() { 
         zcorner_for_side_compartment = has_side_compartment ? false : true;
         roundedCube([compartment_x_length+(wall_thickness*2), compartment_y_length+(wall_thickness*2), compartment_z_length+wall_thickness], 
             center=true, r=rounded_corner_radius,
+            z=true,
             zcorners=[true, zcorner_for_side_compartment, zcorner_for_side_compartment, true],
-            y=false,
-            x=false);
+            x=true,
+            xcorners=[false, true, true, false],
+            y=true,
+            ycorners=[true,false,false,false]);
        
        compartment_center_raise=wall_thickness/2;
         up(compartment_center_raise+0.1)
@@ -134,7 +147,7 @@ module battery_holder(has_side_compartment) {
         
       fwd(y_offset)  
         side_cut();
-      
+       
       place_wire_holes_or_marks(compartment_center_raise, has_side_compartment);
       
       up(compartment_center_raise) 
@@ -142,9 +155,76 @@ module battery_holder(has_side_compartment) {
             long_wire_channel(compartment_x_length+wire_hole_diameter, wire_hole_diameter, compartment_z_length/2);
             short_wire_channel(compartment_y_length/2, wire_hole_diameter);
         }
+        
+      arrange_to_four_corners(compartment_x_length/2+wall_thickness, (compartment_y_length+wall_thickness)/2, (compartment_z_length)/2)
+        screw_hole(true);
+        
+      right(wall_thickness+compartment_x_length/2-wire_hole_diameter/2)
+          down((compartment_z_length)/4.5)
+            fwd(compartment_y_length/2+0.01)
+                compartment_wire_out_cut(wire_hole_diameter, wall_thickness*2, wire_hole_diameter*2);  
     }
 }
 
-// battery_holder(has_side_compartment);
+battery_holder(has_side_compartment);
 
-battery_mock(battery_length, battery_diameter);
+module screw_hole(is_tap) {
+    diameter = is_tap ? m2_screw_hole_tap_diameter : m2_screw_hole_diameter;
+    yrot(90)
+        screw(diameter, 
+           screwlen=m2_screw_stem_length,
+           headsize=m2_screw_head_diameter,
+           headlen=3, countersunk=false, align="base");
+}
+
+/* move children to four corners. The offset is from center. */
+module arrange_to_four_corners(x_offset, y_offset, z_offset) {
+    right(x_offset)
+    union() {
+        translate([0, 
+                   y_offset, 
+                   z_offset])
+            children();
+        
+        translate([0, 
+                   -y_offset, 
+                   z_offset])
+                children();
+        
+        translate([0, 
+                   y_offset, 
+                   -z_offset])
+                children();
+
+        translate([0, 
+                   -y_offset, 
+                   -z_offset])
+                children();
+    }
+}
+
+module compartment_cover() {
+    difference() { 
+        roundedCube([(wall_thickness+comartment_x_length), compartment_y_length+(wall_thickness*2), compartment_z_length+wall_thickness], 
+            center=true, r=rounded_corner_radius,
+            z=true,
+            zcorners=[false, true, true, false],
+            x=true,
+            xcorners=[false, true, true, false],
+            y=true,
+            ycorners=[false,true,false,false]);
+        
+        left(wall_thickness/2+0.01)
+            cube([comartment_x_length, compartment_y_length, compartment_z_length-wall_thickness], 
+                center=true);
+        
+        arrange_to_four_corners((comartment_x_length+wall_thickness)/2, (compartment_y_length+wall_thickness)/2, (compartment_z_length)/2)
+            screw_hole(false);
+    }
+}
+
+down((compartment_z_length+wall_thickness)/2-(wall_thickness+comartment_x_length)/2)
+right((compartment_x_length)/2 + wall_thickness*2 + 11.8)
+    yrot(90)
+        compartment_cover();
+// battery_mock(battery_length, battery_diameter);
