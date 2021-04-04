@@ -7,6 +7,11 @@ include <../OpenSCAD-common-libraries/roundedCube.scad>
 include <../OpenSCAD-common-libraries/screw_matrics.scad>
 use <BOSL/metric_screws.scad>
 
+emit_holder = true;
+emit_compartment_cover = true;
+emit_mocked_battery = false;
+compartment_cover_has_vent = true;
+
 selected_battery_size="26650"; //["32700", "26650"]; These are norminalized battery size options. 
 echo("selected_battery_size=", selected_battery_size);
 
@@ -18,10 +23,6 @@ echo("battery_length=", battery_length);
 
 battery_diameter = selected_battery_size=="26650" ? 26 : (selected_battery_size=="32700" ? 32 : 0);
 echo("battery_diameter=", battery_diameter);
-
-module battery_mock(battery_length, battery_diameter) {
-    cylinder(h = battery_length, d=battery_diameter, center = true, $fn=90);
-}
 
 // Output wires
 wire_thickness = 4.1;
@@ -166,8 +167,6 @@ module battery_holder(has_side_compartment) {
     }
 }
 
-battery_holder(has_side_compartment);
-
 module screw_hole(is_tap) {
     diameter = is_tap ? m2_screw_hole_tap_diameter : m2_screw_hole_diameter;
     yrot(90)
@@ -203,6 +202,17 @@ module arrange_to_four_corners(x_offset, y_offset, z_offset) {
     }
 }
 
+// length & height & wall_thickness are vent area dimensions.
+// grill_size determins the grill interval.
+module vent(length, height, wall_thickness, grill_size) {
+     for(i=[0:1:height/grill_size]) {
+         if (i%2 == 0) {
+            up(i*grill_size)
+                #cube([wall_thickness * 5, length, grill_size], center=true); // * 5 to make sure cut through the wall.
+         }
+    }
+}
+
 module compartment_cover() {
     difference() { 
         roundedCube([(wall_thickness+comartment_x_length), compartment_y_length+(wall_thickness*2), compartment_z_length+wall_thickness], 
@@ -215,16 +225,32 @@ module compartment_cover() {
             ycorners=[false,true,false,false]);
         
         left(wall_thickness/2+0.01)
-            cube([comartment_x_length, compartment_y_length, compartment_z_length-wall_thickness], 
-                center=true);
+            cube([comartment_x_length, compartment_y_length, compartment_z_length-wall_thickness], center=true);
         
         arrange_to_four_corners((comartment_x_length+wall_thickness)/2, (compartment_y_length+wall_thickness)/2, (compartment_z_length)/2)
             screw_hole(false);
+        
+        if (compartment_cover_has_vent) {
+            vent_height = (compartment_z_length - wall_thickness) - 2;
+            down(vent_height/2)
+                #vent(compartment_y_length, vent_height, wall_thickness, 2);
+        }
     }
 }
 
-down((compartment_z_length+wall_thickness)/2-(wall_thickness+comartment_x_length)/2)
-right((compartment_x_length)/2 + wall_thickness*2 + 11.8)
-    yrot(90)
-        compartment_cover();
-// battery_mock(battery_length, battery_diameter);
+module battery_mock(battery_length, battery_diameter) {
+    // Shorter by 1mm to reserve room for adding contacts.
+    cylinder(h = battery_length - 1, d=battery_diameter, center = true, $fn=90);
+}
+
+if (emit_holder)
+    battery_holder(has_side_compartment);
+
+if (emit_compartment_cover)
+    down((compartment_z_length+wall_thickness)/2-(wall_thickness+comartment_x_length)/2)
+        right((compartment_x_length)/2 + wall_thickness*2 + 11.8)
+            yrot(90)
+                compartment_cover(); 
+
+if (emit_mocked_battery)
+    battery_mock(battery_length, battery_diameter);
