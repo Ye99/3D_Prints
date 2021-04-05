@@ -1,5 +1,14 @@
-// Holder for 26650/32700 batteries
+// Holder for 26650/32700 batteries.
 // Author mr.yezhang@gmail.com
+// License: MIT https://en.wikipedia.org/wiki/MIT_License
+// Battery contacts use https://www.aliexpress.com/item/32953210416.html?spm=a2g0s.9042311.0.0.7c7e4c4dB4evB1
+// Put battery over-discharge protection board like this (dimension 2mm X 16mm) under side cover
+// https://www.aliexpress.com/item/4000966259698.html?spm=a2g0s.9042311.0.0.7c7e4c4dB4evB1
+// The protection board B+ to battery positive; B- to battery negative. Output P+ is same as with B+; 
+// output P- is the back metal plate or P- on the PCB.
+// Wiring ducts and holes are designed into the 3D model.
+// Use 2mm * 20mm screw to mount side cover to the holder:
+// https://smile.amazon.com/gp/product/B07HPYS77H/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&psc=1
 
 include <BOSL/constants.scad>
 use <BOSL/transforms.scad>
@@ -8,14 +17,14 @@ include <../OpenSCAD-common-libraries/screw_matrics.scad>
 use <BOSL/metric_screws.scad>
 
 emit_holder = true;
-emit_compartment_cover = true;
+emit_cover = true;
 emit_mocked_battery = false;
-compartment_cover_has_vent = true;
+cover_has_vent = true;
 
 selected_battery_size="26650"; //["32700", "26650"]; These are norminalized battery size options. 
 echo("selected_battery_size=", selected_battery_size);
 
-wall_thickness=5.2;
+wall_thickness=4.2;
 
 // Battery is cylinder shape. 
 battery_length = selected_battery_size=="26650" ? 66 : (selected_battery_size=="32700" ? 70 : 0);
@@ -25,7 +34,7 @@ battery_diameter = selected_battery_size=="26650" ? 26 : (selected_battery_size=
 echo("battery_diameter=", battery_diameter);
 
 // Output wires
-wire_thickness = 4.1;
+wire_thickness = 3.1;
 wire_hole_diameter = wire_thickness+0.12;
 
 contact_width = 10; //
@@ -53,9 +62,9 @@ protecton_board_diameter=16;
 protecton_board_thickness=2;
 
 // If false, for charging configuration.
-has_side_compartment=true;
+has_side_cover=true;
 // This is net inside size.
-comartment_x_length=5;
+cover_depth=8;
 
 // To easily insert/remove battery.
 module side_cut() {
@@ -73,19 +82,19 @@ module draw_horizontal_cut(raise, horizontal_cut_diameter) {
             cube([horizontal_cut_diameter, compartment_y_length, horizontal_cut_diameter], center = true);
 }
 
-function compute_hole_or_mark_diameter(has_side_compartment) = has_side_compartment ?  0.4 : wire_hole_diameter; 
+function compute_hole_or_mark_diameter(has_side_cover) = has_side_cover ?  0.4 : wire_hole_diameter; 
 
-module wire_hole_or_mark(raise, has_side_compartment) {
-    draw_horizontal_cut(raise, compute_hole_or_mark_diameter(has_side_compartment)); 
+module wire_hole_or_mark(raise, has_side_cover) {
+    draw_horizontal_cut(raise, compute_hole_or_mark_diameter(has_side_cover)); 
 }
 
-module place_wire_holes_or_marks(raise, has_side_compartment) {
-    x_offset=(compartment_x_length+compute_hole_or_mark_diameter(has_side_compartment))/2;
+module place_wire_holes_or_marks(raise, has_side_cover) {
+    x_offset=(compartment_x_length+compute_hole_or_mark_diameter(has_side_cover))/2;
     right(x_offset)
-        wire_hole_or_mark(raise, has_side_compartment);
+        wire_hole_or_mark(raise, has_side_cover);
         
     left(x_offset)
-        wire_hole_or_mark(raise, has_side_compartment);
+        wire_hole_or_mark(raise, has_side_cover);
 }
 
 module long_wire_channel(x_length, width, z_length) {
@@ -125,9 +134,9 @@ module compartment_wire_out_cut(x_length, y_length, z_length) {
     cube([x_length, y_length, z_length], center=true);
 }
 
-module battery_holder(has_side_compartment) {
+module battery_holder(has_side_cover) {
     difference() { 
-        zcorner_for_side_compartment = has_side_compartment ? false : true;
+        zcorner_for_side_compartment = has_side_cover ? false : true;
         roundedCube([compartment_x_length+(wall_thickness*2), compartment_y_length+(wall_thickness*2), compartment_z_length+wall_thickness], 
             center=true, r=rounded_corner_radius,
             z=true,
@@ -149,7 +158,7 @@ module battery_holder(has_side_compartment) {
       fwd(y_offset)  
         side_cut();
        
-      place_wire_holes_or_marks(compartment_center_raise, has_side_compartment);
+      place_wire_holes_or_marks(compartment_center_raise, has_side_cover);
       
       up(compartment_center_raise) 
         union() {
@@ -159,7 +168,9 @@ module battery_holder(has_side_compartment) {
         
       arrange_to_four_corners(compartment_x_length/2+wall_thickness, (compartment_y_length+wall_thickness)/2, (compartment_z_length)/2)
         screw_hole(true);
-        
+
+
+      // Wire out holes on base, rather than on cover, to eliminate coupling.
       right(wall_thickness+compartment_x_length/2-wire_hole_diameter/2)
           down((compartment_z_length)/4.5)
             fwd(compartment_y_length/2+0.01)
@@ -176,30 +187,30 @@ module screw_hole(is_tap) {
            headlen=3, countersunk=false, align="base");
 }
 
-/* move children to four corners. The offset is from center. */
+/* move children to four corners. The offset origin is the center. */
 module arrange_to_four_corners(x_offset, y_offset, z_offset) {
     right(x_offset)
-    union() {
-        translate([0, 
-                   y_offset, 
-                   z_offset])
-            children();
-        
-        translate([0, 
-                   -y_offset, 
-                   z_offset])
+        union() {
+            translate([0, 
+                       y_offset, 
+                       z_offset])
                 children();
-        
-        translate([0, 
-                   y_offset, 
-                   -z_offset])
-                children();
+            
+            translate([0, 
+                       -y_offset, 
+                       z_offset])
+                    children();
+            
+            translate([0, 
+                       y_offset, 
+                       -z_offset])
+                    children();
 
-        translate([0, 
-                   -y_offset, 
-                   -z_offset])
-                children();
-    }
+            translate([0, 
+                       -y_offset, 
+                       -z_offset])
+                    children();
+        }
 }
 
 // length & height & wall_thickness are vent area dimensions.
@@ -215,7 +226,7 @@ module vent(length, height, wall_thickness, grill_size) {
 
 module compartment_cover() {
     difference() { 
-        roundedCube([(wall_thickness+comartment_x_length), compartment_y_length+(wall_thickness*2), compartment_z_length+wall_thickness], 
+        roundedCube([(wall_thickness+cover_depth), compartment_y_length+(wall_thickness*2), compartment_z_length+wall_thickness], 
             center=true, r=rounded_corner_radius,
             z=true,
             zcorners=[false, true, true, false],
@@ -225,15 +236,15 @@ module compartment_cover() {
             ycorners=[false,true,false,false]);
         
         left(wall_thickness/2+0.01)
-            cube([comartment_x_length, compartment_y_length, compartment_z_length-wall_thickness], center=true);
+            cube([cover_depth, compartment_y_length, compartment_z_length-wall_thickness], center=true);
         
-        arrange_to_four_corners((comartment_x_length+wall_thickness)/2, (compartment_y_length+wall_thickness)/2, (compartment_z_length)/2)
+        arrange_to_four_corners((cover_depth+wall_thickness)/2, (compartment_y_length+wall_thickness)/2, (compartment_z_length)/2)
             screw_hole(false);
         
-        if (compartment_cover_has_vent) {
-            vent_height = (compartment_z_length - wall_thickness) - 2;
+        if (cover_has_vent) {
+            vent_height = (compartment_z_length - wall_thickness) - 3;
             down(vent_height/2)
-                #vent(compartment_y_length, vent_height, wall_thickness, 2);
+                vent(compartment_y_length, vent_height, wall_thickness, 2);
         }
     }
 }
@@ -244,10 +255,10 @@ module battery_mock(battery_length, battery_diameter) {
 }
 
 if (emit_holder)
-    battery_holder(has_side_compartment);
+    battery_holder(has_side_cover);
 
-if (emit_compartment_cover)
-    down((compartment_z_length+wall_thickness)/2-(wall_thickness+comartment_x_length)/2)
+if (emit_cover)
+    down((compartment_z_length+wall_thickness)/2-(wall_thickness+cover_depth)/2)
         right((compartment_x_length)/2 + wall_thickness*2 + 11.8)
             yrot(90)
                 compartment_cover(); 
