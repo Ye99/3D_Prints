@@ -9,11 +9,11 @@
 
 // Customisable settings
 
-include <BOSL/constants.scad>
-use <BOSL/metric_screws.scad>
-use <BOSL/transforms.scad>
-use <OpenSCAD-common-libraries/roundedCube.scad>
-include <OpenSCAD-common-libraries/screw_matrics.scad>
+include <../BOSL/constants.scad>
+use <../BOSL/metric_screws.scad>
+use <../BOSL/transforms.scad>
+use <../OpenSCAD-common-libraries/roundedCube.scad>
+include <../OpenSCAD-common-libraries/screw_matrics.scad>
 
 CONNECTOR_TYPE = "straight";//["straight","Tee", "X", "Y", "straight Y", "Multi", "90 elbow", "45 elbow", "30 elbow", "20 elbow","120 elbow",  "U bend", "cap", "reducer"]
 PIPE_ANGULAR_SEPARATION = 90;//[45,60,75,90,100,110,120,125,130,135,140,150]

@@ -1,9 +1,12 @@
-include <BOSL/constants.scad>
-use <BOSL/metric_screws.scad>
-use <BOSL/transforms.scad>
-include <OpenSCAD-common-libraries/screw_matrics.scad>
-include <OpenSCAD-common-libraries/roundedCube.scad>
-use <OpenSCAD-common-libraries/triangles.scad>
+// Author Ye Zhang (mr.yezhang@gmail.com)
+// License MIT. 
+
+include <../BOSL/constants.scad>
+use <../BOSL/metric_screws.scad>
+use <../BOSL/transforms.scad>
+include <../OpenSCAD-common-libraries/screw_matrics.scad>
+include <../OpenSCAD-common-libraries/roundedCube.scad>
+use <../OpenSCAD-common-libraries/triangles.scad>
 
 base_x_length=308; // Sovol. 
 base_y_length=4; // Thickness. 

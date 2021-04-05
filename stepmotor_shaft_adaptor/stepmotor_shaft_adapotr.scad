@@ -1,5 +1,5 @@
-include <BOSL/constants.scad>
-use <BOSL/transforms.scad>
+include <../BOSL/constants.scad>
+use <../BOSL/transforms.scad>
 include <../OpenSCAD-common-libraries/roundedCube.scad>
 
 base_x_length=60; // Length.

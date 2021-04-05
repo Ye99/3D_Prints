@@ -12,8 +12,8 @@
 09/12/2020 - Ye Zhang Refactor code fixing magic numbers, making the module contrains computed rahter than hardcoded, making PCB board real size. 
 */
 
-use <BOSL/transforms.scad>
-use <BOSL/metric_screws.scad>
+use <../BOSL/transforms.scad>
+use <../BOSL/metric_screws.scad>
 use <../MCAD/regular_shapes.scad>
 include <../OpenSCAD-common-libraries/screw_matrics.scad>
 

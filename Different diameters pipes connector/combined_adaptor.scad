@@ -1,7 +1,7 @@
 use <large_end.scad>;
 use <small_end.scad>;
-include <BOSL/constants.scad>
-use <BOSL/transforms.scad>
+include <../BOSL/constants.scad>
+use <../BOSL/transforms.scad>
 
 small_end();
   

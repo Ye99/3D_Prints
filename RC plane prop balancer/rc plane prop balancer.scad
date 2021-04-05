@@ -1,5 +1,5 @@
-include <BOSL/constants.scad>
-use <BOSL/transforms.scad>
+include <../BOSL/constants.scad>
+use <../BOSL/transforms.scad>
 include <../OpenSCAD-common-libraries/roundedCube.scad>
 
 // https://smile.amazon.com/gp/product/B07PWBNQ5V/ref=ppx_yo_dt_b_asin_title_o01_s00?ie=UTF8&psc=1 
