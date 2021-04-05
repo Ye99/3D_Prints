@@ -2,9 +2,9 @@
 // Notice one of the contact surfaces is larger than the other,
 // to improve bed adhesion. Pay attention to use the larger one. 
 
-include <BOSL/constants.scad>
-use <BOSL/metric_screws.scad>
-use <BOSL/transforms.scad>
+include <../BOSL/constants.scad>
+use <../BOSL/metric_screws.scad>
+use <../BOSL/transforms.scad>
 include <../OpenSCAD-common-libraries/screw_matrics.scad>
 use <../MCAD/regular_shapes.scad>
 
