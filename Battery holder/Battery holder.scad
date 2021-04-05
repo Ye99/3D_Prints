@@ -10,11 +10,11 @@
 // Use 2mm * 20mm screw to mount side cover to the holder:
 // https://smile.amazon.com/gp/product/B07HPYS77H/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&psc=1
 
-include <BOSL/constants.scad>
-use <BOSL/transforms.scad>
+include <../BOSL/constants.scad>
+use <../BOSL/transforms.scad>
 include <../OpenSCAD-common-libraries/roundedCube.scad>
 include <../OpenSCAD-common-libraries/screw_matrics.scad>
-use <BOSL/metric_screws.scad>
+use <../BOSL/metric_screws.scad>
 
 emit_holder = true;
 emit_cover = true;
