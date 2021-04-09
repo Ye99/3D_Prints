@@ -9,8 +9,12 @@ include <../OpenSCAD-common-libraries/roundedCube.scad>
 include <../OpenSCAD-common-libraries/screw_matrics.scad>
 use <../BOSL/metric_screws.scad>
 
-// reserved length for contact plate
+// Reserved length for contact plate. 
 contact_thickness=0.5;
+// Below dimesion is tip to tip length, subtract below for 
+// actual cylinder part length.
+battery_positive_contact_extrusion_length=1.3;
+reserved_length=contact_thickness+battery_positive_contact_extrusion_length;
 
 // Dimensions from https://batteryuniversity.com/learn/article/battery_packaging_a_look_at_old_and_new_systems
 AAA_battery_length=44.5;
@@ -21,8 +25,8 @@ AA_battery_diameter=14.5;
 
 selected_battery_size="AAA"; // [AAA, AA]
 echo("selected_battery_size=", selected_battery_size);
- 
-battery_length = selected_battery_size=="AAA" ? AAA_battery_length-contact_thickness: (selected_battery_size=="AA" ? AA_battery_length-contact_thickness : 0);
+
+battery_length = selected_battery_size=="AAA" ? AAA_battery_length-reserved_length: (selected_battery_size=="AA" ? AA_battery_length-reserved_length : 0);
 echo("battery_length=", battery_length);
 
 battery_diameter = selected_battery_size=="AAA" ? AAA_battery_diameter: (selected_battery_size=="AA" ? AA_battery_diameter: 0);
