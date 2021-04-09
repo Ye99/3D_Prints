@@ -19,7 +19,7 @@ AAA_battery_diameter=10.5;
 AA_battery_length=50;
 AA_battery_diameter=14.5;
 
-selected_battery_size="AAA"; //["AAA", "AA"]; 
+selected_battery_size="AAA"; // [AAA, AA]
 echo("selected_battery_size=", selected_battery_size);
  
 battery_length = selected_battery_size=="AAA" ? AAA_battery_length-contact_thickness: (selected_battery_size=="AA" ? AA_battery_length-contact_thickness : 0);
