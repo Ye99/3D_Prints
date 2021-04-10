@@ -13,7 +13,7 @@ use <../BOSL/metric_screws.scad>
 contact_thickness=0.5;
 // Below dimesion is tip to tip length, subtract below for 
 // actual cylinder part length.
-battery_positive_contact_extrusion_length=1.3;
+battery_positive_contact_extrusion_length=1.5;
 reserved_length=contact_thickness+battery_positive_contact_extrusion_length;
 
 // Dimensions from https://batteryuniversity.com/learn/article/battery_packaging_a_look_at_old_and_new_systems
@@ -30,7 +30,7 @@ battery_length = selected_battery_size=="AAA" ? AAA_battery_length-reserved_leng
 echo("battery_length=", battery_length);
 
 battery_diameter = selected_battery_size=="AAA" ? AAA_battery_diameter: (selected_battery_size=="AA" ? AA_battery_diameter: 0);
-echo("battery_length=", battery_length);
+echo("battery_diameter=", battery_diameter);
 
 wire_channel_width=3;
 
