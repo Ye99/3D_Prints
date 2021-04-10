@@ -11,17 +11,15 @@ use <../BOSL/metric_screws.scad>
 
 // Reserved length for contact plate. 
 contact_thickness=0.5;
-// Below dimesion is tip to tip length, subtract below for 
-// actual cylinder part length.
-battery_positive_contact_extrusion_length=1.5;
-reserved_length=contact_thickness+battery_positive_contact_extrusion_length;
+reserved_length=contact_thickness;
 
 // Dimensions from https://batteryuniversity.com/learn/article/battery_packaging_a_look_at_old_and_new_systems
-AAA_battery_length=44.5;
-AAA_battery_diameter=10.5;
+// Are tip to tip length. Below is cylinder length excluding the protruding anode.
+AAA_battery_length=43;
+AAA_battery_diameter=10.2;
 
-AA_battery_length=50;
-AA_battery_diameter=14.5;
+AA_battery_length=48.5;
+AA_battery_diameter=13.9;
 
 selected_battery_size="AAA"; // [AAA, AA]
 echo("selected_battery_size=", selected_battery_size);
