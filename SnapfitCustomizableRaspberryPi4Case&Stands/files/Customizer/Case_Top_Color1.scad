@@ -47,8 +47,8 @@ Fan_Mounting = "screws"; // [none:None, screws:Screws, rails:Rails]
 
 /* [Accessory Features] */
 
-Cam_Slot = false;
-Disp_Slot = false;
+Cam_Slot = true;
+Disp_Slot = true;
 Pin_Slot = true;
 
 /**********************************************************/
