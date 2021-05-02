@@ -15,8 +15,8 @@ fan_side_length=120;
 // Distance between two consecutive mounting fan screws (respectively 20, 24, 32, 40 mm)
 mount_hole_width=105;
 
-// Mounting screw diameter (respectively 3, 3, 3.5, 4.5 mm) TODO: update this.
-mount_hole_d=3;
+// Mounting screw diameter (respectively 3, 3, 3.5, 4.5, 5.3 mm)
+mount_hole_d=5.3;
 
 // The mesh kind
 mesh_kind="hex"; // [hex,square,radial_circles,radial_poly]
@@ -139,4 +139,4 @@ module fan_guard() {
     }
 }
 
-// fan_guard();
+fan_guard();

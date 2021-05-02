@@ -27,30 +27,14 @@ lip_size = 8;
 
 fan_size=120;
 
+rounded_corner_radius=2;
+
+// 5.5x2.1 plug socket.
+OD_five_point_five_plug_socket_hole_diameter=8;
+socket_hole_up_offset=1.2;
+
 rack_total_x = ((wall_thickness * 2 + drive_x) * number_of_drives) + (spacer_x * (number_of_drives - 1));
 echo("Rack total x is ", rack_total_x);
-
-/*
-// Dimensions from https://batteryuniversity.com/learn/article/battery_packaging_a_look_at_old_and_new_systems
-// Are tip to tip length. Below is cylinder length excluding the protruding anode.
-AAA_battery_length=43;
-AAA_battery_diameter=10.2;
-
-AA_battery_length=48.5;
-AA_battery_diameter=13.9;
-
-selected_battery_size="AAA"; // [AAA, AA]
-echo("selected_battery_size=", selected_battery_size);
-
-battery_length = selected_battery_size=="AAA" ? AAA_battery_length-reserved_length: (selected_battery_size=="AA" ? AA_battery_length-reserved_length : 0);
-echo("battery_length=", battery_length);
-
-battery_diameter = selected_battery_size=="AAA" ? AAA_battery_diameter: (selected_battery_size=="AA" ? AA_battery_diameter: 0);
-echo("battery_diameter=", battery_diameter);
-
-wire_channel_width=3; */
-
-$fn=100;
 
 module one_section(drive_x, drive_y, drive_z, wall_thickness) {
     double_wall_thickness = (wall_thickness*2);
@@ -76,16 +60,52 @@ module connector(drive_y, drive_z, wall_thickness, spacer_x) {
         cube([spacer_x, drive_y+wall_thickness, wall_thickness], center=true);
 }
 
-module rack(shift_unit) {
+module foot() {
+	foot_z=(fan_size-drive_z-wall_thickness*2)/2;
+	down(drive_z/2+wall_thickness+foot_z/2)
+		roundedCube([(wall_thickness*2), drive_y+(wall_thickness), foot_z], 
+				center=true, r=rounded_corner_radius,
+				z=true,
+				zcorners=[true, true, false, false],
+				x=true,
+				xcorners=[true, false, false, false],
+				y=false,
+				ycorners=[true,false,false,false]);
+}
+
+module socket_mount(hole_diameter, up_offset, thickness) {
+	mount_z = hole_diameter*2;
+	echo("mount height is ", mount_z);
+	up(mount_z/2)
+		difference() {
+			cube([thickness, hole_diameter*3, mount_z], center=true);
+			up(up_offset)
+				yrot(90)
+					cylinder(d=hole_diameter, h=wall_thickness*3, center=true, $fn=50);
+		}
+}
+
+module rack(shift_unit, include_foot) {
     for (i=[1:number_of_drives]) {
     shift = shift_unit*i;
     right(shift)
         union() {
             one_section(drive_x, drive_y, drive_z, wall_thickness);
             if (i<number_of_drives) {
-                right(drive_x/2+wall_thickness*2)
+                right(drive_x/2+wall_thickness*2) {
                     connector(drive_y, drive_z, wall_thickness, spacer_x);
+					if (include_foot) 
+						foot();
+				}
             }
+			
+			if (i == number_of_drives/2) { // Place socket mount at center
+				back(drive_y/2)
+					up(drive_z/2+wall_thickness)
+						right((drive_x+spacer_x)/2+wall_thickness)
+							zrot(90)
+								socket_mount(OD_five_point_five_plug_socket_hole_diameter, socket_hole_up_offset, wall_thickness);
+			}
         }
     }
 }
@@ -108,7 +128,7 @@ union() {
     difference() {
         positioned_fan_guard();
         hull() 
-            rack(shift_unit);
+            rack(shift_unit, false);
     }
-    rack(shift_unit);
+    rack(shift_unit, true);
 }
