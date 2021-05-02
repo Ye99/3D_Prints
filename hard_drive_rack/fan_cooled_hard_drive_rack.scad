@@ -11,7 +11,7 @@ include <../OpenSCAD-common-libraries/screw_matrics.scad>
 use <../BOSL/metric_screws.scad>
 use <fan_guard.scad>
 
-number_of_drives = 4;
+number_of_drives = 6;
 
 // TODO: update after measurement. 
 // This is the net inside dimesions. 
@@ -27,7 +27,9 @@ lip_size = 8;
 
 fan_size=120;
 
-// 8*2.5+3*5+25*4=135
+rack_total_x = ((wall_thickness * 2 + drive_x) * number_of_drives) + (spacer_x * (number_of_drives - 1));
+echo("Rack total x is ", rack_total_x);
+
 /*
 // Dimensions from https://batteryuniversity.com/learn/article/battery_packaging_a_look_at_old_and_new_systems
 // Are tip to tip length. Below is cylinder length excluding the protruding anode.
@@ -57,6 +59,7 @@ module one_section(drive_x, drive_y, drive_z, wall_thickness) {
             cube([drive_x+double_wall_thickness, drive_y+wall_thickness, drive_z+double_wall_thickness], center=true);
             cube([drive_x, drive_y+double_wall_thickness+0.1, drive_z], center=true);
             cube([drive_x+10, drive_y-lip_size*2, drive_z-lip_size*2], center=true);
+			cube([drive_x-lip_size*3/2, drive_y-lip_size*2, drive_z+10], center=true);
         }
         up(drive_z/4)
             back((drive_y)/2)
@@ -91,10 +94,14 @@ module rack(shift_unit) {
 shift_unit = (drive_x+wall_thickness*2+spacer_x);
 
 module positioned_fan_guard() {
-    fwd(drive_y/2-1.76)
-    right(shift_unit+(fan_size/2-drive_x))
+    fwd(drive_y/2-1.76) // This magic number 1.76 is to align the guard flush with the rack. It depends on fan guard thickness. Refactor later to remove this magic number. 
+    right(shift_unit - (fan_size*2-rack_total_x)/2 + 45) // TODO: calculate this.
         xrot(90)
-            fan_guard();
+			union() { // Two guards side by side. 
+				fan_guard();
+				right(fan_size)
+					fan_guard();
+			}
 }
 
 union() {
@@ -103,5 +110,5 @@ union() {
         hull() 
             rack(shift_unit);
     }
+    rack(shift_unit);
 }
-rack(shift_unit);
