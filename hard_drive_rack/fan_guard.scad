@@ -25,10 +25,10 @@ mesh_kind="hex"; // [hex,square,radial_circles,radial_poly]
 mesh_holes_d=5;
 
 // The mesh thickness (mm)
-mesh_thickness=2;
+mesh_thickness=3;
 
 // Additional distance between the mesh and the fan (add it to the mesh thickness for the total height) (mm)
-mesh_clearance=1;
+mesh_clearance=0;
 
 // Mesh string thickness ratio (depends on your nozzle and gcode generator); default gives about 0.8 mm (two passes)
 mesh_density_ratio= 98; // [90:120]

@@ -72,7 +72,7 @@ module connector(drive_y, drive_z, wall_thickness, spacer_x) {
 module foot() {
 	foot_z=(fan_size-drive_z-wall_thickness*2)/2;
 	down(drive_z/2+wall_thickness+foot_z/2)
-		roundedCube([(wall_thickness*2), drive_y+(wall_thickness), foot_z], 
+		roundedCube([(wall_thickness*1.5), drive_y+(wall_thickness), foot_z], 
 				center=true, r=rounded_corner_radius,
 				z=true,
 				zcorners=[true, true, false, false],
