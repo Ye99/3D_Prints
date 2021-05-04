@@ -9,7 +9,7 @@ use <../BOSL/transforms.scad>
 include <../OpenSCAD-common-libraries/roundedCube.scad>
 include <../OpenSCAD-common-libraries/screw_matrics.scad>
 use <../BOSL/metric_screws.scad>
-use <fan_guard.scad>
+include <fan_guard.scad>
 
 number_of_drives = 6;
 
@@ -52,6 +52,8 @@ module one_section(drive_x, drive_y, drive_z, wall_thickness) {
             cube([drive_x+10, drive_y-lip_size*2, drive_z-lip_size*2], center=true);
 			cube([drive_x-lip_size*3/2, drive_y-lip_size*2, drive_z+10], center=true);
         }
+        
+        // The small horizontal bar at back. 
         up(drive_z/4)
             back((drive_y)/2)
                 cube([drive_x+double_wall_thickness, wall_thickness, double_wall_thickness*2], center=true);
@@ -117,13 +119,12 @@ module rack(shift_unit, include_foot) {
     }
 }
 
-
 shift_unit = (drive_x+wall_thickness*2+spacer_x);
-
+echo("fan guard thickness is", fan_guard_thickness);
 module positioned_fan_guard() {
     fan_guard_offset_to_rack_center = rack_total_x/2 - (drive_x/2 + wall_thickness) - fan_size/2;
-    fwd(drive_y/2-1.76) // This magic number 1.76 is to align the guard flush with the rack. It depends on fan guard thickness. Refactor later to remove this magic number. 
-        right(shift_unit + fan_guard_offset_to_rack_center) // TODO: calculate this.
+    fwd((drive_y+wall_thickness)/2-fan_guard_thickness)
+        right(shift_unit + fan_guard_offset_to_rack_center)
             xrot(90)
                 union() { // Two guards side by side. 
                     fan_guard();

@@ -51,6 +51,9 @@ dholes= mesh_holes_d;
 marginhole= (fan_side_length-mount_hole_width)/2;
 roundness= outer_roundness * (mesh_thickness + mesh_clearance) / 100;
 
+fan_guard_thickness=mesh_thickness+mesh_clearance;
+echo("Fan guard thickness is ", fan_guard_thickness);
+
 function drot(radius, spacing)= 360 / round( (2 * 3.1415926 * radius) / spacing );
 
 module wedge(radius,dholes)
@@ -139,4 +142,4 @@ module fan_guard() {
     }
 }
 
-fan_guard();
+// fan_guard();
