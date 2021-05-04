@@ -13,17 +13,24 @@ use <fan_guard.scad>
 
 number_of_drives = 6;
 
-// TODO: update after measurement. 
 // This is the net inside dimesions. 
-drive_x = 25;
-drive_y = 120;
-drive_z = 90;
+// Below is dimension of WD 2.5 inch external WD_BLACK P10 Game Drive
+// https://shop.westerndigital.com/products/portable-drives/wd-black-p10-game-drive-usb-3-2-hdd#WDBA3A0050BBK-WESN
+// Other drives are smaller
+// WD Elements Portable https://shop.westerndigital.com/products/portable-drives/wd-elements-portable-usb-3-0-hdd#WDBU6Y0050BBK-WESN
+// 82.1 x 111 x 21.2
+// Seagate 78 x 114.5 x 20.5
+// If it fits WD_BLACK P10, it will fit smaller drives.
+buffer = 1; // add buffer
+drive_x = 21 + buffer;
+drive_y = 118 + buffer;
+drive_z = 83 + buffer;
 
 // Space between drives.
 spacer_x = 5;
 
 wall_thickness = 2.5;
-lip_size = 8;
+lip_size = 9;
 
 fan_size=120;
 
@@ -114,14 +121,15 @@ module rack(shift_unit, include_foot) {
 shift_unit = (drive_x+wall_thickness*2+spacer_x);
 
 module positioned_fan_guard() {
+    fan_guard_offset_to_rack_center = rack_total_x/2 - (drive_x/2 + wall_thickness) - fan_size/2;
     fwd(drive_y/2-1.76) // This magic number 1.76 is to align the guard flush with the rack. It depends on fan guard thickness. Refactor later to remove this magic number. 
-    right(shift_unit - (fan_size*2-rack_total_x)/2 + 45) // TODO: calculate this.
-        xrot(90)
-			union() { // Two guards side by side. 
-				fan_guard();
-				right(fan_size)
-					fan_guard();
-			}
+        right(shift_unit + fan_guard_offset_to_rack_center) // TODO: calculate this.
+            xrot(90)
+                union() { // Two guards side by side. 
+                    fan_guard();
+                    right(fan_size)
+                        fan_guard();
+                }
 }
 
 union() {
