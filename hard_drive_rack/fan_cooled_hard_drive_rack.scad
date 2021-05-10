@@ -24,7 +24,7 @@ number_of_drives = 6;
 buffer = 1; // add buffer
 drive_x = 21 + buffer;
 drive_y = 118 + buffer;
-drive_z = 83 + buffer;
+drive_z = 88.5 + buffer;
 
 // Space between drives.
 spacer_x = 5;
