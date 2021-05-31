@@ -4,7 +4,9 @@ include <../OpenSCAD-common-libraries/roundedCube.scad>
 include <../OpenSCAD-common-libraries/screw_matrics.scad>
 use <../BOSL/metric_screws.scad>
 
-wall_thickness=2.4;
+print_small_port_adaptor=true;
+
+wall_thickness=print_small_port_adaptor? 2 : 2.4;
 
 pump_outer=31.8;
 adapter_large_inner_diameter=pump_outer;
@@ -14,13 +16,19 @@ echo(adapter_large_inner_diameter=adapter_large_inner_diameter);
 pump_neck_length=50;
 adapter_large_section_length=pump_neck_length;
 
-air_port_inner=17.3;
+air_bed_port_inner=17.3;
+air_boat_port_inner=8;
+
+air_port_inner=print_small_port_adaptor? air_boat_port_inner : air_bed_port_inner;
+
 adapter_small_outer_diameter=air_port_inner - 0.5;
 echo(adapter_small_outer_diameter=adapter_small_outer_diameter);
+
 adapter_small_inner_diameter=adapter_small_outer_diameter - wall_thickness*2;
 assert(adapter_small_inner_diameter>0);
 echo(adapter_small_inner_diameter=adapter_small_inner_diameter);
-adapter_small_section_length=40;
+
+adapter_small_section_length=print_small_port_adaptor? 60 : 40;
 
 $fn=100;
 
