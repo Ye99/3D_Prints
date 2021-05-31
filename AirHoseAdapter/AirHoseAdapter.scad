@@ -21,14 +21,15 @@ air_boat_port_inner=8;
 
 air_port_inner=print_small_port_adaptor? air_boat_port_inner : air_bed_port_inner;
 
-adapter_small_outer_diameter=air_port_inner - 0.5;
+small_end_shrink_size=print_small_port_adaptor ? 1.0 : 2.0;
+adapter_small_outer_diameter=air_port_inner - small_end_shrink_size;
 echo(adapter_small_outer_diameter=adapter_small_outer_diameter);
 
 adapter_small_inner_diameter=adapter_small_outer_diameter - wall_thickness*2;
 assert(adapter_small_inner_diameter>0);
 echo(adapter_small_inner_diameter=adapter_small_inner_diameter);
 
-adapter_small_section_length=print_small_port_adaptor? 60 : 40;
+adapter_small_section_length=print_small_port_adaptor ? 100 : 70;
 
 $fn=100;
 
