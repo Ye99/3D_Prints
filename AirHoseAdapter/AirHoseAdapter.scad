@@ -6,7 +6,7 @@ use <../BOSL/metric_screws.scad>
 
 print_small_port_adaptor=true;
 
-wall_thickness=print_small_port_adaptor? 2 : 2.4;
+wall_thickness=print_small_port_adaptor? 1.2 : 2.4;
 
 pump_outer=31.8;
 adapter_large_inner_diameter=pump_outer;
