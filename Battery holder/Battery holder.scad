@@ -21,10 +21,13 @@ emit_cover = true;
 emit_mocked_battery = false;
 cover_has_vent = true;
 
-selected_battery_size="26650"; //["32700", "26650"]; These are norminalized battery size options. 
+selected_battery_size="32700"; //["32700", "26650"]; These are norminalized battery size options. 
 echo("selected_battery_size=", selected_battery_size);
 
 wall_thickness=4.2;
+
+// To print compartment and cover from one exported STL, the space between them.
+space_between_comopartment_and_cover = 1;
 
 // Battery is cylinder shape. 
 battery_length = selected_battery_size=="26650" ? 66 : (selected_battery_size=="32700" ? 70 : 0);
@@ -259,7 +262,7 @@ if (emit_holder)
 
 if (emit_cover)
     down((compartment_z_length+wall_thickness)/2-(wall_thickness+cover_depth)/2)
-        right((compartment_x_length)/2 + wall_thickness*2 + 11.8)
+        right((compartment_x_length)/2 + wall_thickness + (compartment_z_length+wall_thickness)/2 + space_between_comopartment_and_cover)
             yrot(90)
                 compartment_cover(); 
 
