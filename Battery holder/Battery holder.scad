@@ -21,7 +21,7 @@ emit_cover = true;
 emit_mocked_battery = false;
 cover_has_vent = true;
 
-selected_battery_size="32700"; //["32700", "26650"]; These are norminalized battery size options. 
+selected_battery_size="26650"; //["32700", "26650"]; These are norminalized battery size options. 
 echo("selected_battery_size=", selected_battery_size);
 
 wall_thickness=4.2;
