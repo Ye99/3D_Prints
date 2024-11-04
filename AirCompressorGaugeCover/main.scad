@@ -9,7 +9,6 @@ $fn = 200;
 // Create the outer cylinder
 outer_diameter = inner_diameter + 2 * wall_thickness;
 
-
 difference() {
     cylinder(h = height, d = outer_diameter, center = false);
     
@@ -17,5 +16,15 @@ difference() {
     translate([0, 0, wall_thickness]) { // To keep one end closed
         cylinder(h = height, d = inner_diameter, center = false);
     }
+    
+    translate([0, 0, (wall_thickness*1/3)]) {
+        //difference() {
+            #cylinder(h = height, d1 = 0, d2 = outer_diameter, center = false);
+            *translate([0, 0, wall_thickness]) { // To keep one end closed
+                cylinder(h = height, d = inner_diameter, center = false);
+            }
+        // }
+    }
 }
 
+// Draw a cone with base diameter equal to the outer diameter of the cylinder
