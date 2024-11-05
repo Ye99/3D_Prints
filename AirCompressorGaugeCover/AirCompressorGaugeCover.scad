@@ -1,7 +1,7 @@
 // OpenSCAD code to create a cover for a cylinder
 
 // Parameters
-inner_diameter = 52; // Inner diameter in mm
+inner_diameter = 53; // Inner diameter in mm
 height = 24;         // Inner height in mm
 wall_thickness = 4;  // Wall thickness in mm
 outer_diameter = inner_diameter + 2 * wall_thickness;
