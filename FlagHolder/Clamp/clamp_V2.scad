@@ -1,4 +1,6 @@
-inner_radius = 12.5;
+// inner_radius = 10.525; // For 3/4 pole, radius is 9.525 
+// inner_radius = 8.93; // For 5/8 pole, radius is 7.938 
+inner_radius = 7.35; // For 1/2 pole, radius is 6.35
 wall_thickness = 2.5;
 open_angle = 80;//[25:170]
 height = 30.0;
