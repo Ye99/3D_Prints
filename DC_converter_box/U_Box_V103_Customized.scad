@@ -17,18 +17,18 @@ use <../BOSL/metric_screws.scad>
 use <../MCAD/regular_shapes.scad>
 include <../OpenSCAD-common-libraries/screw_matrics.scad>
 
-selected_board="LM2596Blue"; //["XL4015Red", "LM2596Blue", "RD_Green", "XL4016DoubleHeatSinks"];
+selected_board="XL4015Red"; //["XL4015Red", "LM2596Blue", "RD_Green", "XL4016DoubleHeatSinks"];
 echo("selected_board=", selected_board);
 
 /* [STL element to export] */
 //Coque haut - Top shell
-  top_shell    = 0;// [0:No, 1:Yes]
+  top_shell    = 1;// [0:No, 1:Yes]
 //Coque bas- Bottom shell
   bottom_shell = 0;// [0:No, 1:Yes]
 //Panneau arrière - Back panel  
   back_panel   = 0;// [0:No, 1:Yes]
 //Panneau avant - Front panel
-  front_panel  = 1;// [0:No, 1:Yes]
+  front_panel  = 0;// [0:No, 1:Yes]
 //Texte façade - Front text
   Text          = 0;// [0:No, 1:Yes]
   
@@ -137,7 +137,7 @@ adjustment_hole_y2_offset = selected_board=="XL4015Red" ? xl4015_adjustment_hole
 adjustment_hole_diameter = selected_board=="XL4016DoubleHeatSinks" ? 5.5 : 0; // 3.5;
 
 board_to_wall_clearance_x = 2;
-board_to_wall_clearance_y = 2;
+board_to_wall_clearance_y = 3.6;
 board_x = pcb_hole_x_distance+pcb_edge_to_hole_x_distance*2;
 board_y = pcb_hole_y_distance+pcb_edge_to_hole_y_distance*2;
 
