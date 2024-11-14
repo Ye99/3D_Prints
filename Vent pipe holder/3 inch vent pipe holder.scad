@@ -1,4 +1,4 @@
-// Updated to reduce diameter to 3 inches, rotate mount_tab by 90 degrees, and move it backward along the y-axis by 3 inches
+// Updated to add a slab with thickness matching the thickness variable, connecting mount_tab to the edge of the half_pipe
 
 include <../BOSL/constants.scad>
 use <../BOSL/metric_screws.scad>
@@ -11,12 +11,13 @@ bed_adhesion_lip_height=0.32 + 0.28;
 start=2;
 stop=50;
 step=3;
-thickness=2;
-mount_tab_height=30;
+thickness=2.8;
+mount_tab_height=60;
+connecting_slab_thickness=8;
 face_number=100;
 
 // Adjusted Factor_B for 3-inch diameter (76.2mm)
-Factor_B=76.2;
+Factor_B=92;
 
 // Updated coefficient and module definitions remain as in the original code
 Coefficient_a=0.05;
@@ -77,33 +78,35 @@ module mount_screw() {
 }
 
 // Rotate mount_tab by 90 degrees and move backward along y-axis by 3 inches (76.2mm)
-module mount_tab() {
+module mount_tab(gap_length) {
     tab_z_length=stop*1.5;
     tab_y_length=mount_tab_height;
-    tab_x_length=thickness*4;
+    tab_x_length=thickness*2.5;
     
-    difference() {
-        translate([0, -76.2, 0]) // Move backward along y-axis by 3 inches (76.2mm)
-            right(1)
-                rotate([0, 0, 90]) // Rotate by 90 degrees
-                    union() {
-                        cube([tab_x_length, tab_y_length, tab_z_length], center=true);
+    fwd(gap_length)
+        union() {
+            left(tab_y_length/2-connecting_slab_thickness/2)
+                zrot(90)
+                    difference() {
+                                cube([tab_x_length, tab_y_length, tab_z_length], center=true);
+                                
+                                //back(connecting_slab_thickness) // Move screw hole "up/down" along tab.
+                                    right(5) // Make the cut penentrate the tab. 
+                                        yrot(90)
+                                            mount_screw();
                         
-                        back(tab_y_length/4)
-                            right(tab_x_length/2)
-                                xrot(90)
-                                    linear_extrude(height = tab_y_length/2, center = true)
-                                        polygon(points=[[0,tab_z_length/2], 
-                                                        [tab_x_length/2,0],
-                                                        [0, -tab_z_length/2]], 
-                                                paths=[[0,1,2]]);
                     }
         
-        fwd(8) // Move screw hole "up/down" along tab.
-            right(5)
-                yrot(90)
-                    mount_screw();
-    }
+            // Add the connecting slab to attach mount_tab to half_pipe
+            connecting_slab();
+        }
+}
+
+// Slab to connect mount_tab to half_pipe, with thickness equal to `thickness`
+module connecting_slab() {
+    slab_length = 80;
+    back(slab_length/2)
+        cube([connecting_slab_thickness, slab_length, stop * 1.5], center=true);
 }
 
 module piple_holder() {
@@ -114,8 +117,10 @@ module piple_holder() {
             cube([Factor_B*2, Factor_B, Factor_B*2], center=true);
     }
     
-    left(49)
-       mount_tab();
+    gap_length = 76.2;
+    left(gap_length/2+10-thickness)
+        // translate([0, -gap_length, 0]) // Move backward along y-axis by 3 inches (76.2mm)
+            mount_tab(gap_length);
 }
 
 piple_holder();
