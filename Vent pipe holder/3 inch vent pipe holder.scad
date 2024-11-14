@@ -118,7 +118,7 @@ module piple_holder() {
     }
     
     gap_length = 76.2;
-    left(gap_length/2+10-thickness)
+    left(gap_length/2+10-thickness*1.3)
         // translate([0, -gap_length, 0]) // Move backward along y-axis by 3 inches (76.2mm)
             mount_tab(gap_length);
 }
