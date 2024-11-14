@@ -1,4 +1,4 @@
-// Updated to reduce diameter to 3 inches and rotate mount_tab by 90 degrees
+// Updated to reduce diameter to 3 inches, rotate mount_tab by 90 degrees, and move it backward along the y-axis by 3 inches
 
 include <../BOSL/constants.scad>
 use <../BOSL/metric_screws.scad>
@@ -76,27 +76,28 @@ module mount_screw() {
        headlen=3, countersunk=false, align="base");
 }
 
-// Rotate mount_tab by 90 degrees
+// Rotate mount_tab by 90 degrees and move backward along y-axis by 3 inches (76.2mm)
 module mount_tab() {
     tab_z_length=stop*1.5;
     tab_y_length=mount_tab_height;
     tab_x_length=thickness*4;
     
     difference() {
-        right(1)
-            rotate([0, 0, 90]) // Rotate by 90 degrees
-                union() {
-                    cube([tab_x_length, tab_y_length, tab_z_length], center=true);
-                    
-                    back(tab_y_length/4)
-                        right(tab_x_length/2)
-                            xrot(90)
-                                linear_extrude(height = tab_y_length/2, center = true)
-                                    polygon(points=[[0,tab_z_length/2], 
-                                                    [tab_x_length/2,0],
-                                                    [0, -tab_z_length/2]], 
-                                            paths=[[0,1,2]]);
-                }
+        translate([0, -76.2, 0]) // Move backward along y-axis by 3 inches (76.2mm)
+            right(1)
+                rotate([0, 0, 90]) // Rotate by 90 degrees
+                    union() {
+                        cube([tab_x_length, tab_y_length, tab_z_length], center=true);
+                        
+                        back(tab_y_length/4)
+                            right(tab_x_length/2)
+                                xrot(90)
+                                    linear_extrude(height = tab_y_length/2, center = true)
+                                        polygon(points=[[0,tab_z_length/2], 
+                                                        [tab_x_length/2,0],
+                                                        [0, -tab_z_length/2]], 
+                                                paths=[[0,1,2]]);
+                    }
         
         fwd(8) // Move screw hole "up/down" along tab.
             right(5)
