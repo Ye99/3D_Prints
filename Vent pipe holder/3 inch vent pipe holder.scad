@@ -15,10 +15,11 @@ thickness=2.8;
 mount_tab_height=60;
 connecting_slab_thickness=8;
 face_number=100;
-gap_length = 41.8;
+gap_length = 39;
     
 // Adjusted Factor_B for 3-inch diameter (76.2mm)
 Factor_B=96; // When this value is updated, must change the left parameter thickness*ratio in piple_holder module. Don't have time to optimize this hacky code.
+narrowest_radius=39;
 
 // Updated coefficient and module definitions remain as in the original code
 Coefficient_a=0.05;
@@ -118,8 +119,8 @@ module piple_holder() {
             cube([Factor_B*2, Factor_B, Factor_B*2], center=true);
     }
     
-    left(gap_length/2+10-thickness*.8)
-        // translate([0, -gap_length, 0]) // Move backward along y-axis by 3 inches (76.2mm)
+    left(narrowest_radius+thickness*1.8)
+        fwd(gap_length)
             mount_tab(gap_length);
 }
 
