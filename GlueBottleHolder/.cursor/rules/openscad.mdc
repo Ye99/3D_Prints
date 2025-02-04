@@ -1,0 +1,150 @@
+---
+description: Rules for good OpenSCAD code.
+globs: *.scad
+---
+# OpenSCAD Style Guide
+
+## Module and Function Organization
+
+1. **Descriptive Names**
+   - Use clear, descriptive names for modules and functions
+   - Follow snake_case naming convention
+   ```openscad
+   // Good
+   module rounded_corner_box() { ... }
+   
+   // Bad
+   module box1() { ... }
+   ```
+
+2. **Parameter Documentation**
+   - Document all parameters with their units and purpose
+   - Place documentation directly above the module/function
+   ```openscad
+   // Creates a rounded box with specified dimensions
+   // @param width     Width of box in mm
+   // @param height    Height of box in mm
+   // @param radius    Corner radius in mm
+   module rounded_box(width, height, radius) { ... }
+   ```
+
+3. **Default Values**
+   - Provide sensible default values for optional parameters
+   - List required parameters first, followed by optional ones
+   ```openscad
+   module screw_hole(
+       diameter,           // Required
+       depth,             // Required
+       countersink=false, // Optional
+       tolerance=0.2      // Optional with default
+   ) { ... }
+   ```
+
+## Code Structure
+
+4. **Modular Design**
+   - Break complex shapes into smaller, reusable modules
+   - Use composition over large monolithic designs
+   ```openscad
+   module case_assembly() {
+       base();
+       walls();
+       lid();
+   }
+   ```
+
+5. **Consistent Spacing**
+   - Use 4 spaces for indentation
+   - Add space after commas in parameter lists
+   - Place operators between spaces
+   ```openscad
+   translate([10, 20, 0]) {
+       cube([width + margin, height * 2, depth]);
+   }
+   ```
+
+6. **Transformations**
+   - Group related transformations together
+   - Use meaningful variable names for dimensions
+   ```openscad
+   // Good
+   translate([offset_x, offset_y, 0])
+   rotate([0, 0, angle])
+   cylinder(h=height, r=radius);
+   
+   // Bad
+   translate([5, 10, 0])
+   rotate([0, 0, 45])
+   cylinder(h=20, r=5);
+   ```
+
+## Best Practices
+
+7. **Variables and Constants**
+   - Define constants at the top of the file
+   - Use UPPERCASE for constants
+   - Use descriptive variable names
+   ```openscad
+   WALL_THICKNESS = 2.5;
+   TOLERANCE = 0.2;
+   
+   box_width = base_width + 2 * WALL_THICKNESS;
+   ```
+
+8. **Comments and Documentation**
+   - Comment complex operations
+   - Explain the purpose of magic numbers
+   - Document any assumptions or limitations
+   ```openscad
+   // Fillet radius must be less than half the height
+   assert(fillet_radius <= height / 2);
+   
+   // Add 0.01 to prevent z-fighting
+   translate([0, 0, 0.01])
+   ```
+
+9. **Performance Considerations**
+   - Use `union()`, `difference()`, and `intersection()` sparingly
+   - Prefer simple shapes over complex boolean operations
+   - Consider using `hull()` for organic shapes
+   ```openscad
+   // Good: Using hull for a rounded shape
+   hull() {
+       translate([0, 0, 0]) sphere(r=5);
+       translate([10, 0, 0]) sphere(r=5);
+   }
+   
+   // Bad: Multiple boolean operations
+   difference() {
+       union() {
+           difference() {
+               // Complex nested operations
+           }
+       }
+   }
+   ```
+
+10. **Preview vs Render**
+    - Test designs in preview mode first
+    - Use `$fn` appropriately:
+      - Low values (20-32) for preview
+      - Higher values (64-128) for final render
+    ```openscad
+    // Preview mode
+    $fn = 32;
+    
+    // Render mode
+    // $fn = 128;
+    ```
+
+## Version Control
+
+11. **File Organization**
+    - Separate library modules into different files
+    - Use include/use statements effectively
+    ```openscad
+    include <constants.scad>
+    use <utilities.scad>
+    ```
+
+Remember that following these guidelines will help create more maintainable, readable, and efficient OpenSCAD code. These practices make it easier to collaborate with others and modify designs in the future. 
