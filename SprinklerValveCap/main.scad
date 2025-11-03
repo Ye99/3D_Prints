@@ -1,7 +1,7 @@
 $fn = 120;
 
 sides = 6;
-sprinkler_inner_flat = 20;
+sprinkler_inner_flat = 19;
 sprinkler_wall_thickness = 3;
 sprinkler_base_thickness = 3;
 sprinkler_inner_height = 15;
