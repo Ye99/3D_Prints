@@ -159,7 +159,8 @@ def main() -> int:
     args = parser.parse_args()
 
     manifest: dict[str, str] = {}
-    if MANIFEST.exists() and not args.force:
+    # Load the manifest even with --force so removed models are still pruned.
+    if MANIFEST.exists():
         manifest = json.loads(MANIFEST.read_text())
 
     models = find_models(REPO)
@@ -205,7 +206,7 @@ def main() -> int:
     MANIFEST.write_text(json.dumps(dict(sorted(manifest.items())), indent=2) + "\n")
     print(f"rendered {len(todo) - len(failures)}, failed {len(failures)}, "
           f"removed {len(stale)}, total previews {len(manifest)}")
-    return 0
+    return 1 if failures else 0
 
 
 if __name__ == "__main__":
