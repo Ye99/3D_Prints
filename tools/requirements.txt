@@ -1,0 +1,6 @@
+# Dependencies for tools/render_previews.py
+trimesh~=5.2
+numpy~=2.5
+pillow~=13.0
+networkx~=3.7   # needed by trimesh to read .3mf files
+lxml~=6.1       # needed by trimesh to read .3mf files
